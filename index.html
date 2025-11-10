@@ -348,7 +348,7 @@
             </div>
             
             <div class="events-panel">
-                <div class="events-title">Главные события</div>
+                <div class="events-title">Случайные события</div>
                 <div class="event-display" id="event-display">
                     <div class="event-title" id="event-title">Ожидание событий...</div>
                     <div class="event-effect" id="event-effect"></div>
@@ -358,7 +358,7 @@
         </div>
         
         <div class="controls">
-            <div class="money-display">Выручка: <span id="money">100</span> ₽</div>
+            <div class="money-display">Деньги: <span id="money">100</span> ₽</div>
             <div class="buttons">
                 <button class="btn upgrade-btn" id="upgrade-btn">
                     <span id="upgrade-btn-text">Модернизация</span><br>
@@ -456,16 +456,16 @@
 
         // Upgrade names
         const upgradeNames = [
-            'Откалиброваны контроллеры газотурбинной установки',
+            'Заменена газотурбинная установка',
             'Модернизирована система теплообмена',
-            'Настроены дымососы',
-            'Установленые новые контроллеры АСУТП',
-            'Оптимизированы диспетчерские графики',
-            'Повышена энергоэффективность паровых котлов',
-            'Повышена квалификация оперативного персонала',
+            'Установлены новые насосы',
+            'Обновлена автоматика управления',
+            'Заменены трубы на участке',
+            'Повышена эффективность котлов',
+            'Установлена система рекуперации',
             'Модернизирована диспетчерская',
-            'Усовершенствована система газопотребления',
-            'Внедрено рацпредложение работника станции'
+            'Заменены регуляторы давления',
+            'Установлены новые теплоизоляционные материалы'
         ];
 
         // Event definitions
@@ -483,7 +483,7 @@
                 apply: () => { gameState.money += 5000; }
             },
             {
-                title: "Антициклон привел к похолоданию в регионе",
+                title: "Антициклон привел к похолоданию",
                 effect: "температура наружного воздуха -35°C на 1 минуту",
                 type: "ongoing",
                 apply: () => { 
@@ -512,14 +512,14 @@
                 }
             },
             {
-                title: "В результате реализации крупного инвестпроекта возникла допприбыль",
-                effect: "выручка увеличивается в 1.5 раза",
+                title: "В результате реализации крупного инвестпроекта возникла сверхприбыль",
+                effect: "деньги увеличиваются в 1.5 раза",
                 type: "one-time",
                 apply: () => { gameState.money *= 1.5; }
             },
             {
                 title: "Юристы взыскали дебиторку с должников",
-                effect: "выручка увеличивается в 1.2 раза",
+                effect: "деньги увеличиваются в 1.2 раза",
                 type: "one-time",
                 apply: () => { gameState.money *= 1.2; }
             },
@@ -551,12 +551,12 @@
             },
             {
                 title: "Часть потребителей перешли на прямые расчеты, минуя УК",
-                effect: "темпы прироста выручки увеличиваются в 1.1 раза",
+                effect: "суммы прироста денег увеличиваются в 1.1 раза",
                 type: "one-time",
                 apply: () => { gameState.moneyPerTick *= 1.1; }
             },
             {
-                title: "Получен целевой транш на развитие инфраструктуры",
+                title: "Получен целевой кредит на развитие инфраструктуры",
                 effect: "+500 тыс. руб.",
                 type: "one-time",
                 apply: () => { gameState.money += 500000; }
@@ -566,10 +566,19 @@
         // Initialize sounds
         function initSounds() {
             try {
-                // Try to create audio objects
+                // Initialize sound objects with proper preloading
                 sounds.button = new Audio();
                 sounds.alarm = new Audio();
                 sounds.event = new Audio();
+                
+                // Set to loop and preload
+                sounds.button.loop = false;
+                sounds.alarm.loop = false;
+                sounds.event.loop = false;
+                
+                sounds.button.preload = 'auto';
+                sounds.alarm.preload = 'auto';
+                sounds.event.preload = 'auto';
                 
                 // Attempt to load actual sound files with error handling
                 sounds.button.src = 'sounds/button.mp3';
@@ -577,33 +586,55 @@
                 sounds.event.src = 'sounds/event.mp3';
                 
                 // Set up error handling for audio loading
-                sounds.button.onerror = function() { console.log('Button sound not loaded, continuing without sound'); };
-                sounds.alarm.onerror = function() { console.log('Alarm sound not loaded, continuing without sound'); };
-                sounds.event.onerror = function() { console.log('Event sound not loaded, continuing without sound'); };
+                sounds.button.onerror = function(e) { 
+                    console.log('Button sound not loaded, continuing without sound', e);
+                    soundsEnabled = false;
+                };
+                sounds.alarm.onerror = function(e) { 
+                    console.log('Alarm sound not loaded, continuing without sound', e);
+                    soundsEnabled = false;
+                };
+                sounds.event.onerror = function(e) { 
+                    console.log('Event sound not loaded, continuing without sound', e);
+                    soundsEnabled = false;
+                };
                 
-                // Prevent multiple plays
-                sounds.button.preload = 'auto';
-                sounds.alarm.preload = 'auto';
-                sounds.event.preload = 'auto';
+                // Try to load sounds
+                sounds.button.load();
+                sounds.alarm.load();
+                sounds.event.load();
             } catch (e) {
                 console.warn('Audio initialization failed, sounds disabled:', e);
                 soundsEnabled = false;
             }
         }
 
-        // Play sound safely
+        // Play sound safely - clone audio element for multiple plays
         function playSound(soundName) {
             if (!soundsEnabled || gameState.isPaused) return;
             
-            const sound = sounds[soundName];
-            if (!sound) return;
-            
             try {
-                // Reset and play
-                sound.currentTime = 0;
+                const originalSound = sounds[soundName];
+                if (!originalSound) return;
+                
+                // Create a clone of the audio element for each play
+                const sound = originalSound.cloneNode();
+                sound.volume = 0.7; // Slightly reduce volume
+                
+                // Play the cloned sound
                 sound.play().catch(e => {
-                    console.log('Sound playback failed (likely due to browser autoplay policy):', e);
+                    console.log('Sound playback failed:', e);
+                    
+                    // Fallback for browsers with strict autoplay policies
+                    if (e.name === 'NotAllowedError') {
+                        console.log('Audio autoplay blocked by browser policy. User interaction may be required.');
+                    }
                 });
+                
+                // Clean up the clone after playback
+                sound.onended = function() {
+                    sound.remove();
+                };
             } catch (e) {
                 console.log('Sound playback error:', e);
             }
@@ -784,12 +815,20 @@
             if (gameState.currentEvent) {
                 const elapsed = Date.now() - gameState.currentEvent.startTime;
                 const remaining = 60000 - elapsed;
-                const seconds = Math.ceil(remaining / 1000);
+                // Ensure remaining is not negative
+                const safeRemaining = Math.max(0, remaining);
+                const seconds = Math.ceil(safeRemaining / 1000);
                 
                 elements.eventTitle.textContent = gameState.currentEvent.title;
                 elements.eventEffect.textContent = `(${gameState.currentEvent.effect})`;
-                elements.eventTimer.textContent = `Осталось: ${seconds} сек`;
                 
+                if (safeRemaining > 0) {
+                    elements.eventTimer.textContent = `Осталось: ${seconds} сек`;
+                } else {
+                    elements.eventTimer.textContent = "Завершено";
+                }
+                
+                // End event if remaining time is zero or negative
                 if (remaining <= 0) {
                     endCurrentEvent();
                 }
@@ -1166,10 +1205,10 @@
         }
 
         function getBuildingName(building) {
-            if (building === gameState.buildings.school) return 'школах и детсадах';
-            if (building === gameState.buildings.house) return 'жилых домах';
-            if (building === gameState.buildings.office) return 'офисах';
-            if (building === gameState.buildings.institution) return 'учреждениях';
+            if (building === gameState.buildings.school) return 'школе';
+            if (building === gameState.buildings.house) return 'жилом доме';
+            if (building === gameState.buildings.office) return 'офисе';
+            if (building === gameState.buildings.institution) return 'учреждении';
             return 'объекте';
         }
 
