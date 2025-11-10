@@ -844,8 +844,8 @@
             if (now - gameState.lastEventCheck >= 60000) { // Check every minute
                 gameState.lastEventCheck = now;
                 
-                // 30% chance of event occurring
-                if (Math.random() < 0.3 && !gameState.currentEvent) {
+                // 40% chance of event occurring
+                if (Math.random() < 0.4 && !gameState.currentEvent) {
                     const randomEvent = events[Math.floor(Math.random() * events.length)];
                     startEvent(randomEvent);
                 }
