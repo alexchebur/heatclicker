@@ -2,7 +2,13 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#f37321">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ТЭЦ Кликер">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
     <title>ТЭЦ Инкрементальный Кликер</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -20,6 +26,16 @@
             min-height: 100vh;
             padding: 2px;
             overflow: hidden;
+        }
+        
+        /* Безопасные зоны для iPhone */
+        @supports (padding: max(0px)) {
+            body {
+                padding-top: max(2px, env(safe-area-inset-top));
+                padding-bottom: max(2px, env(safe-area-inset-bottom));
+                padding-left: max(2px, env(safe-area-inset-left));
+                padding-right: max(2px, env(safe-area-inset-right));
+            }
         }
         
         :root {
@@ -48,13 +64,23 @@
             }
         }
         
+        @media (max-width: 400px) {
+            :root {
+                --spacing-unit: 2px;
+                --font-size-base: 8px;
+                --padding-base: 4px;
+            }
+        }
+        
         .container {
-            max-width: 800px;
+            max-width: 100%;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            height: 95vh;
+            height: 100vh;
+            min-height: 100vh;
             gap: var(--spacing-unit);
+            padding: 0;
         }
         
         .header {
@@ -352,6 +378,16 @@
             font-size: calc(9px + 0.2vh);
             margin-bottom: calc(var(--spacing-unit) * 0.1);
         }
+        
+        /* Адаптация для очень маленьких экранов */
+        @media (max-height: 600px) {
+            .header, .controls {
+                padding: calc(var(--padding-base) * 0.5);
+            }
+            .log { height: 6vh; min-height: 30px; }
+            .event-display { min-height: 8vh; }
+            .btn { padding: 0.6vh 1.2vw; font-size: calc(var(--font-size-base) * 0.8); }
+        }
     </style>
 </head>
 <body>
@@ -432,6 +468,22 @@
     </div>
 
     <script>
+        // Блокировка жестов масштабирования на iOS
+        document.documentElement.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        let lastTouchEnd = 0;
+        document.documentElement.addEventListener('touchend', function(event) {
+            const now = new Date().getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
+
         // Create grid cells (3x3) after DOM is fully loaded
         document.addEventListener('DOMContentLoaded', function() {
             const gameField = document.getElementById('game-field');
@@ -1307,6 +1359,21 @@
         // Initialize the game after DOM is fully loaded
         document.addEventListener('DOMContentLoaded', init);
         window.addEventListener('beforeunload', saveGameState);
+    </script>
+    
+    <script>
+    // Регистрация Service Worker для PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('ServiceWorker registered with scope:', registration.scope);
+                })
+                .catch(error => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+        });
+    }
     </script>
 </body>
 </html>
