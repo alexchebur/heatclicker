@@ -2,7 +2,13 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#f37321">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ТЭЦ Кликер">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
     <title>ТЭЦ Инкрементальный Кликер</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -20,6 +26,16 @@
             min-height: 100vh;
             padding: 2px;
             overflow: hidden;
+        }
+        
+        /* Безопасные зоны для iPhone */
+        @supports (padding: max(0px)) {
+            body {
+                padding-top: max(2px, env(safe-area-inset-top));
+                padding-bottom: max(2px, env(safe-area-inset-bottom));
+                padding-left: max(2px, env(safe-area-inset-left));
+                padding-right: max(2px, env(safe-area-inset-right));
+            }
         }
         
         :root {
@@ -48,13 +64,23 @@
             }
         }
         
+        @media (max-width: 400px) {
+            :root {
+                --spacing-unit: 2px;
+                --font-size-base: 8px;
+                --padding-base: 4px;
+            }
+        }
+        
         .container {
-            max-width: 800px;
+            max-width: 100%;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            height: 95vh;
+            height: 100vh;
+            min-height: 100vh;
             gap: var(--spacing-unit);
+            padding: 0;
         }
         
         .header {
@@ -160,56 +186,83 @@
             background: rgba(0, 0, 0, 0.6);
             border-radius: 8px;
             padding: 1vh 1vw;
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: calc(2px + 0.1vh);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             position: relative;
+            height: 30vh; /* Фиксированная высота */
+            width: 100%; /* Полная ширина */
         }
         
-        .grid-cell {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: calc(7px + 0.2vh);
+        .thermal-grid {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 3fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+            gap: 2vh;
         }
         
-        .power-plant {
-            grid-column: 2 / 3;
-            grid-row: 2 / 3;
-            background: linear-gradient(45deg, #f59e0b, #ef4444);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: calc(14px + 0.3vh);
-            font-weight: bold;
-            border-radius: 4px;
-        }
-        
-        .building {
+        .icon-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0.5vh 0.5vw;
-            text-align: center;
-            font-size: calc(7px + 0.2vh);
-            font-weight: bold;
-            border-radius: 3px;
         }
         
-        .building.school { grid-column: 1 / 2; grid-row: 1 / 2; }
-        .building.house { grid-column: 3 / 4; grid-row: 1 / 2; }
-        .building.office { grid-column: 1 / 2; grid-row: 3 / 4; }
-        .building.institution { grid-column: 3 / 4; grid-row: 3 / 4; }
+        .building-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 5px;
+            transition: background-color 0.3s ease;
+        }
         
-        .building.temp-normal { background: rgba(74, 222, 128, 0.8); }
-        .building.temp-cold { background: rgba(59, 130, 246, 0.8); }
-        .building.temp-hot { background: rgba(245, 158, 11, 0.8); }
-        .building.temp-failure { background: rgba(239, 68, 68, 0.8); }
+        .building-icon.temp-normal { background: rgba(74, 222, 128, 0.8); }
+        .building-icon.temp-cold { background: rgba(59, 130, 246, 0.8); }
+        .building-icon.temp-hot { background: rgba(245, 158, 11, 0.8); }
+        .building-icon.temp-failure { background: rgba(239, 68, 68, 0.8); }
+        
+        .building-temp {
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .power-plant-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f59e0b, #ef4444);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .connection {
+            position: absolute;
+            background: #9ca3af;
+            z-index: -1;
+        }
+        
+        .horizontal-pipe {
+            height: 2px;
+            background: linear-gradient(to right, #6b7280, #9ca3af);
+        }
+        
+        .vertical-pipe {
+            width: 2px;
+            background: linear-gradient(to bottom, #6b7280, #9ca3af);
+        }
         
         .events-panel {
             background: rgba(0, 0, 0, 0.7);
@@ -232,7 +285,6 @@
             border-radius: 6px;
             padding: 1vh 1vw;
             min-height: 10vh;
-            /* Fixed width constraints to prevent stretching */
             width: 100%;
             max-width: 100%;
             display: flex;
@@ -247,7 +299,6 @@
             font-size: calc(var(--font-size-base) * 0.9);
             margin-bottom: calc(var(--spacing-unit) * 0.5);
             color: #fbbf24;
-            /* Ensure title doesn't stretch container */
             width: 100%;
             word-wrap: break-word;
             word-break: break-word;
@@ -258,7 +309,6 @@
             font-size: calc(var(--font-size-base) * 0.75);
             color: #93c5fd;
             margin-bottom: calc(var(--spacing-unit) * 0.7);
-            /* Critical fix: constrain text width to parent */
             width: 100%;
             max-width: 100%;
             word-wrap: break-word;
@@ -271,7 +321,6 @@
             font-size: calc(var(--font-size-base) * 0.75);
             color: #ef4444;
             font-weight: bold;
-            /* Ensure timer doesn't stretch container */
             width: 100%;
             text-wrap: nowrap;
         }
@@ -352,6 +401,19 @@
             font-size: calc(9px + 0.2vh);
             margin-bottom: calc(var(--spacing-unit) * 0.1);
         }
+        
+        /* Адаптация для очень маленьких экранов */
+        @media (max-height: 600px) {
+            .header, .controls {
+                padding: calc(var(--padding-base) * 0.5);
+            }
+            .log { height: 6vh; min-height: 30px; }
+            .event-display { min-height: 8vh; }
+            .btn { padding: 0.6vh 1.2vw; font-size: calc(var(--font-size-base) * 0.8); }
+            .game-field { height: 25vh; }
+            .building-icon { width: 30px; height: 30px; font-size: 16px; }
+            .power-plant-icon { width: 40px; height: 40px; font-size: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -382,22 +444,33 @@
         
         <div class="main-content">
             <div class="game-field" id="game-field">
-                <div class="power-plant">🏭</div>
-                <div class="building school" id="school">
-                    <div class="icon">🏫</div>
-                    <div class="temp">20°</div>
-                </div>
-                <div class="building house" id="house">
-                    <div class="icon">🏠</div>
-                    <div class="temp">20°</div>
-                </div>
-                <div class="building office" id="office">
-                    <div class="icon">🏢</div>
-                    <div class="temp">20°</div>
-                </div>
-                <div class="building institution" id="institution">
-                    <div class="icon">🏥</div>
-                    <div class="temp">20°</div>
+                <div class="thermal-grid">
+                    <!-- School - Top Left -->
+                    <div class="icon-container" id="school">
+                        <div class="building-icon temp-normal">🏫</div>
+                        <div class="building-temp">20°</div>
+                    </div>
+                    
+                    <!-- House - Top Right -->
+                    <div class="icon-container" id="house">
+                        <div class="building-icon temp-normal">🏠</div>
+                        <div class="building-temp">20°</div>
+                    </div>
+                    
+                    <!-- Office - Bottom Left -->
+                    <div class="icon-container" id="office">
+                        <div class="building-icon temp-normal">🏢</div>
+                        <div class="building-temp">20°</div>
+                    </div>
+                    
+                    <!-- Institution - Bottom Right -->
+                    <div class="icon-container" id="institution">
+                        <div class="building-icon temp-normal">🏥</div>
+                        <div class="building-temp">20°</div>
+                    </div>
+                    
+                    <!-- Power Plant in center -->
+                    <div class="power-plant-icon">🏭</div>
                 </div>
             </div>
             
@@ -432,17 +505,21 @@
     </div>
 
     <script>
-        // Create grid cells (3x3) after DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            const gameField = document.getElementById('game-field');
-            if (gameField) {
-                for (let i = 0; i < 9; i++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    gameField.appendChild(cell);
-                }
+        // Блокировка жестов масштабирования на iOS
+        document.documentElement.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
             }
-        });
+        }, { passive: false });
+
+        let lastTouchEnd = 0;
+        document.documentElement.addEventListener('touchend', function(event) {
+            const now = new Date().getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
 
         // Game state
         let gameState = {
@@ -997,7 +1074,7 @@
                 
                 // Add log entry
                 const upgradeName = upgradeNames[Math.floor(Math.random() * upgradeNames.length)];
-                addLogEntry(`🔧 ${upgradeName} (+${moneyIncrease} ₽/tакт, +${powerIncrease} кВт)`);
+                addLogEntry(`🔧 ${upgradeName} (+${moneyIncrease} ₽/такт, +${powerIncrease} кВт)`);
                 
                 // Show money increase feedback on button
                 showUpgradeFeedback(moneyIncrease);
@@ -1100,20 +1177,24 @@
                 const element = elements.buildings[key];
                 if (!element) continue;
                 
-                const tempElement = element.querySelector('.temp');
+                const iconElement = element.querySelector('.building-icon');
+                const tempElement = element.querySelector('.building-temp');
+                
                 if (tempElement) {
                     tempElement.textContent = Math.round(building.temp) + '°';
                 }
                 
-                element.className = `building ${key}`;
+                // Remove all temp classes
+                iconElement.className = 'building-icon';
+                
                 if (building.failed) {
-                    element.classList.add('temp-failure');
+                    iconElement.classList.add('temp-failure');
                 } else if (building.temp < 15) {
-                    element.classList.add('temp-cold');
+                    iconElement.classList.add('temp-cold');
                 } else if (building.temp > 30) {
-                    element.classList.add('temp-hot');
+                    iconElement.classList.add('temp-hot');
                 } else {
-                    element.classList.add('temp-normal');
+                    iconElement.classList.add('temp-normal');
                 }
             }
         }
@@ -1143,21 +1224,14 @@
                 
                 addLogEntry(gameOverMessage);
                 
-                // Play alarm sound FIRST (before pausing)
+                // Play alarm sound (will play even if game is paused)
                 playSound('alarm');
                 
-                // Delay pause to allow sound to start playing
-                setTimeout(() => {
-                    gameState.isPaused = true;
-                    if (elements.pauseBtn) {
-                        elements.pauseBtn.textContent = '▶️';
-                    }
-                    
-                    // Ensure audio context is suspended when game is paused
-                    if (audioContext) {
-                        audioContext.suspend().catch(e => console.log('AudioContext suspend failed:', e));
-                    }
-                }, 1500); // 1.5 second delay for sound to start
+                // Pause the game
+                gameState.isPaused = true;
+                if (elements.pauseBtn) {
+                    elements.pauseBtn.textContent = '▶️';
+                }
             }
         }
 
@@ -1314,6 +1388,21 @@
         // Initialize the game after DOM is fully loaded
         document.addEventListener('DOMContentLoaded', init);
         window.addEventListener('beforeunload', saveGameState);
+    </script>
+    
+    <script>
+    // Регистрация Service Worker для PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('ServiceWorker registered with scope:', registration.scope);
+                })
+                .catch(error => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+        });
+    }
     </script>
 </body>
 </html>
