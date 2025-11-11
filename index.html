@@ -669,8 +669,12 @@
         }
 
         // Play sound safely - clone audio element for multiple plays
+        // Modified to allow alarm sound even when paused
         function playSound(soundName) {
-            if (!soundsEnabled || gameState.isPaused) return;
+            // Allow alarm sound to play even when game is paused
+            if (!soundsEnabled || (gameState.isPaused && soundName !== 'alarm')) {
+                return;
+            }
             
             try {
                 const originalSound = sounds[soundName];
@@ -993,7 +997,7 @@
                 
                 // Add log entry
                 const upgradeName = upgradeNames[Math.floor(Math.random() * upgradeNames.length)];
-                addLogEntry(`🔧 ${upgradeName} (+${moneyIncrease} ₽/такт, +${powerIncrease} кВт)`);
+                addLogEntry(`🔧 ${upgradeName} (+${moneyIncrease} ₽/tакт, +${powerIncrease} кВт)`);
                 
                 // Show money increase feedback on button
                 showUpgradeFeedback(moneyIncrease);
@@ -1139,7 +1143,7 @@
                 
                 addLogEntry(gameOverMessage);
                 
-                // Play alarm sound
+                // Play alarm sound (will play even if game is paused)
                 playSound('alarm');
                 
                 // Pause the game
@@ -1260,7 +1264,7 @@
                             building.failureType = 'overheat';
                             addLogEntry(`🔥 Авария от перегрева в ${getBuildingName(building)}! Температура: ${Math.round(building.temp)}°C`);
                             
-                            // Play alarm sound for failure
+                            // Play alarm sound for failure (will play even if game is paused)
                             playSound('alarm');
                         }
                     } else if (building.temp <= 5) {
@@ -1269,7 +1273,7 @@
                             building.failureType = 'freeze';
                             addLogEntry(`❄️ Авария от переохлаждения в ${getBuildingName(building)}! Температура: ${Math.round(building.temp)}°C`);
                             
-                            // Play alarm sound for failure
+                            // Play alarm sound for failure (will play even if game is paused)
                             playSound('alarm');
                         }
                     }
@@ -1280,7 +1284,7 @@
                         building.failureType = 'pressure'; // Special failure type for pressure-related issues
                         addLogEntry(`⚠️ Авария из-за высокого давления в ${getBuildingName(building)}!`);
                         
-                        // Play alarm sound for pressure failure
+                        // Play alarm sound for pressure failure (will play even if game is paused)
                         playSound('alarm');
                     }
                 }
