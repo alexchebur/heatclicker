@@ -18,8 +18,34 @@
             background: rgb(243, 115, 33);
             color: white;
             min-height: 100vh;
-            padding: 6px;
+            padding: 2px;
             overflow: hidden;
+        }
+        
+        :root {
+            --spacing-unit: 6px;
+            --font-size-base: 12px;
+            --padding-base: 8px;
+        }
+        
+        @media (max-height: 600px) {
+            :root {
+                --spacing-unit: 4px;
+                --font-size-base: 10px;
+                --padding-base: 6px;
+            }
+            
+            body {
+                padding: 1px;
+            }
+        }
+        
+        @media (max-height: 500px) {
+            :root {
+                --spacing-unit: 3px;
+                --font-size-base: 9px;
+                --padding-base: 5px;
+            }
         }
         
         .container {
@@ -27,24 +53,24 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            height: 90vh;
-            gap: 6px;
+            height: 95vh;
+            gap: var(--spacing-unit);
         }
         
         .header {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 8px;
-            padding: 8px;
+            padding: calc(var(--padding-base) * 0.7);
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: calc(var(--spacing-unit) * 0.7);
         }
         
         .top-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: calc(var(--font-size-base) * 0.9);
         }
         
         .power-display {
@@ -56,9 +82,9 @@
             background: rgb(243, 115, 33);
             border: none;
             border-radius: 5px;
-            width: 28px;
-            height: 28px;
-            font-size: 14px;
+            width: calc(25px + 0.5vh);
+            height: calc(25px + 0.5vh);
+            font-size: calc(var(--font-size-base) * 1.1);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -69,24 +95,24 @@
         .sliders {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: calc(var(--spacing-unit) * 1.3);
         }
         
         .slider-group {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: calc(var(--spacing-unit) * 0.3);
         }
         
         .slider-label {
             display: flex;
             justify-content: space-between;
-            font-size: 10px;
+            font-size: calc(var(--font-size-base) * 0.8);
         }
         
         .slider {
             width: 100%;
-            height: 4px;
+            height: calc(4px + 0.1vh);
             -webkit-appearance: none;
             background: #374151;
             border-radius: 2px;
@@ -95,8 +121,8 @@
         
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
+            width: calc(14px + 0.2vh);
+            height: calc(14px + 0.2vh);
             background: #3b82f6;
             border-radius: 50%;
             cursor: pointer;
@@ -104,21 +130,42 @@
         
         .main-content {
             display: flex;
-            gap: 6px;
+            gap: var(--spacing-unit);
             flex: 1;
+        }
+        
+        @media (min-width: 601px) and (min-height: 601px) {
+            .main-content {
+                flex-direction: row;
+            }
+            
+            .game-field, .events-panel {
+                width: 50%;
+                height: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) or (max-height: 600px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .game-field, .events-panel {
+                width: 100%;
+                min-height: 35vh;
+            }
         }
         
         .game-field {
             background: rgba(0, 0, 0, 0.6);
             border-radius: 8px;
-            padding: 8px;
+            padding: 1vh 1vw;
             flex: 1;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
-            gap: 2px;
+            gap: calc(2px + 0.1vh);
             position: relative;
-            width: 50%;
         }
         
         .grid-cell {
@@ -127,7 +174,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 8px;
+            font-size: calc(7px + 0.2vh);
         }
         
         .power-plant {
@@ -137,7 +184,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: calc(14px + 0.3vh);
             font-weight: bold;
             border-radius: 4px;
         }
@@ -147,9 +194,9 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2px;
+            padding: 0.5vh 0.5vw;
             text-align: center;
-            font-size: 8px;
+            font-size: calc(7px + 0.2vh);
             font-weight: bold;
             border-radius: 3px;
         }
@@ -167,61 +214,79 @@
         .events-panel {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 8px;
-            padding: 8px;
-            width: 50%;
+            padding: 1vh 1vw;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: calc(var(--spacing-unit) * 0.8);
         }
         
         .events-title {
-            font-size: 12px;
+            font-size: calc(var(--font-size-base) * 1);
             font-weight: bold;
             text-align: center;
-            margin-bottom: 6px;
+            margin-bottom: calc(var(--spacing-unit) * 0.8);
         }
         
         .event-display {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 6px;
-            padding: 8px;
-            min-height: 80px;
+            padding: 1vh 1vw;
+            min-height: 10vh;
+            /* Fixed width constraints to prevent stretching */
+            width: 100%;
+            max-width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
+            overflow: hidden;
         }
         
         .event-title {
-            font-size: 11px;
-            margin-bottom: 4px;
+            font-size: calc(var(--font-size-base) * 0.9);
+            margin-bottom: calc(var(--spacing-unit) * 0.5);
             color: #fbbf24;
+            /* Ensure title doesn't stretch container */
+            width: 100%;
+            word-wrap: break-word;
+            word-break: break-word;
+            hyphens: auto;
         }
         
         .event-effect {
-            font-size: 9px;
+            font-size: calc(var(--font-size-base) * 0.75);
             color: #93c5fd;
-            margin-bottom: 6px;
+            margin-bottom: calc(var(--spacing-unit) * 0.7);
+            /* Critical fix: constrain text width to parent */
+            width: 100%;
+            max-width: 100%;
+            word-wrap: break-word;
+            word-break: break-word;
+            hyphens: auto;
+            line-height: 1.2;
         }
         
         .event-timer {
-            font-size: 9px;
+            font-size: calc(var(--font-size-base) * 0.75);
             color: #ef4444;
             font-weight: bold;
+            /* Ensure timer doesn't stretch container */
+            width: 100%;
+            text-wrap: nowrap;
         }
         
         .controls {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 8px;
-            padding: 10px;
+            padding: calc(var(--padding-base) * 1.2) calc(var(--padding-base) * 0.8);
             display: flex;
-            gap: 8px;
+            gap: calc(var(--spacing-unit) * 1.3);
             flex-direction: column;
         }
         
         .money-display {
-            font-size: 14px;
+            font-size: calc(var(--font-size-base) * 1.2);
             font-weight: bold;
             text-align: center;
             color: #fbbf24;
@@ -229,27 +294,34 @@
         
         .buttons {
             display: flex;
-            gap: 8px;
+            gap: calc(var(--spacing-unit) * 0.6);
+            flex-wrap: wrap;
         }
         
         .btn {
             flex: 1;
-            padding: 8px;
+            min-width: calc(30% - var(--spacing-unit));
+            padding: 0.8vh 1.5vw;
             border: none;
             border-radius: 5px;
-            font-size: 10px;
+            font-size: calc(var(--font-size-base) * 0.85);
             font-weight: bold;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 2px;
+            gap: calc(var(--spacing-unit) * 0.2);
             color: white;
         }
         
         .upgrade-btn {
             background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .small-upgrade-btn {
+            background: linear-gradient(45deg, #6366f1, #4f46e5);
             color: white;
         }
         
@@ -261,42 +333,24 @@
         .log {
             background: rgba(0, 0, 0, 0.8);
             border-radius: 5px;
-            padding: 5px;
-            height: 60px;
+            padding: 0.5vh 0.8vw;
+            height: 8vh;
+            min-height: 40px;
+            max-height: 100px;
             overflow-y: auto;
-            font-size: 8px;
+            font-size: calc(var(--font-size-base) * 0.7);
             line-height: 1.2;
         }
         
         .log-entry {
-            margin-bottom: 2px;
-            padding-bottom: 2px;
+            margin-bottom: calc(var(--spacing-unit) * 0.2);
+            padding-bottom: calc(var(--spacing-unit) * 0.2);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .icon {
-            font-size: 10px;
-            margin-bottom: 1px;
-        }
-        
-        @media (max-width: 600px) {
-            .main-content {
-                flex-direction: column;
-            }
-            
-            .game-field, .events-panel {
-                width: 100%;
-            }
-            
-            .grid-cell { font-size: 6px; }
-            .power-plant { font-size: 14px; }
-            .building { font-size: 6px; }
-            .top-info, .slider-label { font-size: 10px; }
-            .money-display { font-size: 12px; }
-            .btn { font-size: 8px; padding: 6px; }
-            .events-title { font-size: 11px; }
-            .event-title { font-size: 10px; }
-            .event-effect, .event-timer { font-size: 8px; }
+            font-size: calc(9px + 0.2vh);
+            margin-bottom: calc(var(--spacing-unit) * 0.1);
         }
     </style>
 </head>
@@ -319,7 +373,7 @@
                 </div>
                 <div class="slider-group">
                     <div class="slider-label">
-                        <span>Температура: <span id="temp-value">34</span>%</span>
+                        <span>Температура: <span id="temp-value">34</span>°C</span>
                     </div>
                     <input type="range" min="1" max="150" value="34" class="slider" id="temp-slider">
                 </div>
@@ -358,14 +412,18 @@
         </div>
         
         <div class="controls">
-            <div class="money-display">Деньги: <span id="money">100</span> ₽</div>
+            <div class="money-display">Выручка: <span id="money">100</span> ₽</div>
             <div class="buttons">
                 <button class="btn upgrade-btn" id="upgrade-btn">
                     <span id="upgrade-btn-text">Модернизация</span><br>
                     <span id="upgrade-cost">100</span> ₽
                 </button>
+                <button class="btn small-upgrade-btn" id="small-upgrade-btn">
+                    Мелкие улучшения<br>
+                    +100 ₽
+                </button>
                 <button class="btn repair-btn" id="repair-btn">
-                    Ремонт<br>
+                    Аварийный ремонт<br>
                     <span id="repair-crews">10</span> бригад
                 </button>
             </div>
@@ -392,7 +450,7 @@
             power: 100, // kW
             crews: 10,
             pressure: 50, // % - minimum 5%
-            temperature: 34, // % - changed from 70 to 34
+            temperature: 34, // °C - changed from % to degrees
             outdoorTemp: -5, // Random between -30 and +5
             buildings: {
                 school: { temp: 20, failed: false, failureType: null }, // failureType: 'overheat' or 'freeze'
@@ -441,6 +499,7 @@
             upgradeCost: null,
             repairBtn: null,
             repairCrews: null,
+            smallUpgradeBtn: null,
             log: null,
             pauseBtn: null,
             buildings: {
@@ -660,6 +719,7 @@
             elements.upgradeCost = document.getElementById('upgrade-cost');
             elements.repairBtn = document.getElementById('repair-btn');
             elements.repairCrews = document.getElementById('repair-crews');
+            elements.smallUpgradeBtn = document.getElementById('small-upgrade-btn');
             elements.log = document.getElementById('log');
             elements.pauseBtn = document.getElementById('pause-btn');
             elements.buildings.school = document.getElementById('school');
@@ -690,6 +750,9 @@
             }
             if (elements.repairBtn) {
                 elements.repairBtn.addEventListener('click', handleRepair);
+            }
+            if (elements.smallUpgradeBtn) {
+                elements.smallUpgradeBtn.addEventListener('click', handleSmallUpgrade);
             }
             if (elements.pauseBtn) {
                 elements.pauseBtn.addEventListener('click', togglePause);
@@ -844,8 +907,8 @@
             if (now - gameState.lastEventCheck >= 60000) { // Check every minute
                 gameState.lastEventCheck = now;
                 
-                // 90% chance of event occurring
-                if (Math.random() < 0.9 && !gameState.currentEvent) {
+                // 30% chance of event occurring
+                if (Math.random() < 0.3 && !gameState.currentEvent) {
                     const randomEvent = events[Math.floor(Math.random() * events.length)];
                     startEvent(randomEvent);
                 }
@@ -940,6 +1003,31 @@
             }
         }
 
+        function handleSmallUpgrade() {
+            if (!gameState.isPaused) {
+                // Play button sound
+                playSound('button');
+                
+                // Add visual feedback - darken button
+                if (elements.smallUpgradeBtn) {
+                    elements.smallUpgradeBtn.style.opacity = '0.7';
+                    setTimeout(() => {
+                        if (elements.smallUpgradeBtn) elements.smallUpgradeBtn.style.opacity = '1';
+                    }, 333); // 1/3 second
+                }
+                
+                // Add 100 rubles
+                gameState.money += 100;
+                
+                // Add log entry
+                addLogEntry(`💰 Мелкое улучшение: +100 ₽`);
+                
+                // Update UI
+                updateUI();
+                saveGameState();
+            }
+        }
+
         function handleRepair() {
             if (gameState.crews > 0 && !gameState.isPaused) {
                 // Play button sound
@@ -961,7 +1049,7 @@
                         building.temp = 20;
                         gameState.crews--;
                         repaired = true;
-                        addLogEntry(`🛠️ Проведён ремонт объекта`);
+                        addLogEntry(`🛠️ Проведён аварийный ремонт объекта`);
                         break;
                     }
                 }
@@ -1088,8 +1176,8 @@
 
         // Calculate temperature bonus multiplier
         function getTemperatureBonus() {
-            // Maximum temperature is 150%, current temperature is gameState.temperature
-            // Bonus is percentage of max temperature (e.g., 75% temp = 1.75x multiplier)
+            // Maximum temperature is 150°C, current temperature is gameState.temperature
+            // Bonus is percentage of max temperature (e.g., 75°C temp = 1.5x multiplier)
             const temperaturePercentage = gameState.temperature / 150;
             return 1 + temperaturePercentage;
         }
@@ -1122,7 +1210,7 @@
                     gameState.money += currentMoneyPerTick;
                 }
                 
-                // Update building temperatures
+                // Update building temperatures with new smoother formulas
                 for (const [key, building] of Object.entries(gameState.buildings)) {
                     if (building.failed) {
                         // Handle cooling/heating in failure state
@@ -1141,7 +1229,7 @@
                         continue;
                     }
                     
-                    // Calculate heating effect (reduced influence)
+                    // Calculate heating effect with smoother coefficients
                     // Only apply heating effect if pressure is above minimum (5%)
                     let tempEffect = 0;
                     let pressureEffect = 0;
@@ -1149,15 +1237,15 @@
                     const currentPressure = gameState.tempPressure !== null ? gameState.tempPressure : gameState.pressure;
                     
                     if (currentPressure >= 5) {
-                        tempEffect = (gameState.temperature - 20) * 0.1;
-                        pressureEffect = (currentPressure - 50) * 0.05;
+                        tempEffect = (gameState.temperature - 20) * 0.03;    // Было 0.1
+                        pressureEffect = (currentPressure - 50) * 0.01;     // Было 0.05
                     }
                     
                     const heatingEffect = tempEffect + pressureEffect;
                     
                     // Cooling effect from outdoor temperature (reduced influence)
                     const currentOutdoorTemp = gameState.tempOutdoorTemp !== null ? gameState.tempOutdoorTemp : gameState.outdoorTemp;
-                    const coolingEffect = (currentOutdoorTemp - building.temp) * 0.05;
+                    const coolingEffect = (currentOutdoorTemp - building.temp) * 0.02; // Было 0.05
                     
                     // Net temperature change
                     let tempChange = heatingEffect + coolingEffect;
