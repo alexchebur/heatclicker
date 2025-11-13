@@ -273,124 +273,6 @@
         .building.temp-hot { background: rgba(245, 158, 11, 0.8); }
         .building.temp-failure { background: rgba(239, 68, 68, 0.8); }
         
-        /* Фоновые изображения для зданий и ячеек */
-        .power-plant {
-            background-image: url('images/power-plant.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .building.school {
-            background-image: url('images/school.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .building.house {
-            background-image: url('images/house.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .building.office {
-            background-image: url('images/office.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .building.institution {
-            background-image: url('images/institution.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        /* Фоновые изображения для пустых grid-cell (линии сетей) */
-        .grid-cell:nth-child(1) {
-            background-image: url('images/network-line-1.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .grid-cell:nth-child(2) {
-            background-image: url('images/network-line-2.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .grid-cell:nth-child(3) {
-            background-image: url('images/network-line-3.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .grid-cell:nth-child(4) {
-            background-image: url('images/network-line-4.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        /* Убираем стандартный фон если есть изображение */
-        .power-plant[style*="background-image"],
-        .building[style*="background-image"],
-        .grid-cell[style*="background-image"] {
-            background-color: transparent !important;
-        }
-
-        /* Убираем стандартный цветной фон для зданий с изображениями */
-        .building.temp-normal,
-        .building.temp-cold,
-        .building.temp-hot,
-        .building.temp-failure {
-            background-color: transparent !important;
-        }
-
-        .power-plant {
-            background-color: transparent !important;
-        }
-
-        .grid-cell {
-            background-color: transparent !important;
-        }
-
-        /* Убедимся, что контент (иконки и текст) остается поверх фона */
-        .power-plant > *,
-        .building > *,
-        .grid-cell > * {
-            position: relative;
-            z-index: 2;
-        }
-
-        /* Добавим затемнение для всех ячеек с фоновыми изображениями */
-        .power-plant::before,
-        .building::before,
-        /*.grid-cell::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.3); /* Легкое затемнение для лучшей читаемости */
-           /* z-index: 1;
-            border-radius: inherit;
-            pointer-events: none; /* Чтобы не мешало кликам */
-        /*}*/
-        
-
-        /* Для линий сетей делаем затемнение слабее чтобы лучше видеть линии */
-        .grid-cell::before {
-            background: rgba(0, 0, 0, 0.2);
-        }
-        
         .events-panel {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 8px;
@@ -529,6 +411,133 @@
             margin-bottom: calc(var(--spacing-unit) * 0.1);
         }
         
+        /* Окно статистики */
+        .stats-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .stats-overlay.active {
+            display: flex;
+        }
+        
+        .stats-container {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid #f37321;
+        }
+        
+        .stats-title {
+            font-size: calc(var(--font-size-base) * 2);
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #fbbf24;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-value {
+            font-size: calc(var(--font-size-base) * 1.8);
+            font-weight: bold;
+            color: #4ade80;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: calc(var(--font-size-base) * 0.9);
+            color: #d1d5db;
+            text-align: center;
+        }
+        
+        .close-stats-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ef4444;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: background 0.3s;
+        }
+        
+        .close-stats-btn:hover {
+            background: #dc2626;
+        }
+        
+        .close-stats-btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .restart-game-btn {
+            background: linear-gradient(45deg, #10b981, #059669);
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: calc(var(--font-size-base) * 1.3);
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s, background 0.3s;
+            margin: 0 auto;
+        }
+        
+        .restart-game-btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(45deg, #059669, #047857);
+        }
+        
+        .game-over-message {
+            font-size: calc(var(--font-size-base) * 1.5);
+            color: #ef4444;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
         /* Адаптация для очень маленьких экранов */
         @media (max-height: 600px) {
             .header, .controls {
@@ -538,11 +547,22 @@
             .event-display { min-height: 8vh; }
             .btn { padding: 0.6vh 1.2vw; font-size: calc(var(--font-size-base) * 0.8); }
             
-            /* Адаптация фоновых изображений для маленьких экранов */
-            .building,
-            .power-plant,
-            .grid-cell {
-                background-size: contain; /* Меняем на contain для лучшего отображения на маленьких экранах */
+            .stats-container {
+                padding: 15px;
+            }
+            
+            .stats-title {
+                font-size: calc(var(--font-size-base) * 1.5);
+                margin-bottom: 15px;
+            }
+            
+            .stat-value {
+                font-size: calc(var(--font-size-base) * 1.3);
+            }
+            
+            .restart-game-btn {
+                padding: 10px 20px;
+                font-size: calc(var(--font-size-base) * 1.1);
             }
         }
     </style>
@@ -625,6 +645,46 @@
                 <div class="log" id="log"></div>
             </div>
         </div>
+
+        <!-- Окно статистики -->
+        <div class="stats-overlay" id="stats-overlay">
+            <div class="stats-container">
+                <button class="close-stats-btn" id="close-stats-btn" title="Закрыть">✕</button>
+                <div class="stats-title" id="stats-title">Статистика игры</div>
+                <div class="game-over-message" id="game-over-message" style="display: none;">
+                    💀 ИГРА ОКОНЧЕНА!
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-days">0</div>
+                        <div class="stat-label">Дней прошло</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-money">0</div>
+                        <div class="stat-label">Денег заработано</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-repairs">0</div>
+                        <div class="stat-label">Ремонтов выполнено</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-upgrades">0</div>
+                        <div class="stat-label">Модернизаций выполнено</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-power">0</div>
+                        <div class="stat-label">Максимальная мощность</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-events">0</div>
+                        <div class="stat-label">Событий произошло</div>
+                    </div>
+                </div>
+                <button class="restart-game-btn" id="restart-game-btn">
+                    🔄 Начать сначала
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -684,7 +744,16 @@
             tempOutdoorTemp: null,
             tempPressure: null,
             tempMoneyTickInterval: 1000, // milliseconds
-            tempMoneyMultiplier: 1
+            tempMoneyMultiplier: 1,
+            // Statistics
+            stats: {
+                totalMoneyEarned: 0,
+                repairsPerformed: 0,
+                upgradesPerformed: 0,
+                maxPower: 100,
+                eventsOccurred: 0,
+                gameOver: false
+            }
         };
 
         // Sound system
@@ -722,7 +791,19 @@
             },
             eventTitle: null,
             eventEffect: null,
-            eventTimer: null
+            eventTimer: null,
+            // New elements for stats overlay
+            statsOverlay: null,
+            closeStatsBtn: null,
+            restartGameBtn: null,
+            gameOverMessage: null,
+            statsTitle: null,
+            statDays: null,
+            statMoney: null,
+            statRepairs: null,
+            statUpgrades: null,
+            statPower: null,
+            statEvents: null
         };
 
         // Upgrade names
@@ -946,6 +1027,19 @@
             elements.eventEffect = document.getElementById('event-effect');
             elements.eventTimer = document.getElementById('event-timer');
             
+            // New stats elements
+            elements.statsOverlay = document.getElementById('stats-overlay');
+            elements.closeStatsBtn = document.getElementById('close-stats-btn');
+            elements.restartGameBtn = document.getElementById('restart-game-btn');
+            elements.gameOverMessage = document.getElementById('game-over-message');
+            elements.statsTitle = document.getElementById('stats-title');
+            elements.statDays = document.getElementById('stat-days');
+            elements.statMoney = document.getElementById('stat-money');
+            elements.statRepairs = document.getElementById('stat-repairs');
+            elements.statUpgrades = document.getElementById('stat-upgrades');
+            elements.statPower = document.getElementById('stat-power');
+            elements.statEvents = document.getElementById('stat-events');
+            
             initSounds();
             loadGameState();
             updateUI();
@@ -972,6 +1066,14 @@
             }
             if (elements.pauseBtn) {
                 elements.pauseBtn.addEventListener('click', togglePause);
+            }
+            
+            // New event listeners for stats overlay
+            if (elements.closeStatsBtn) {
+                elements.closeStatsBtn.addEventListener('click', closeStatsOverlay);
+            }
+            if (elements.restartGameBtn) {
+                elements.restartGameBtn.addEventListener('click', restartGame);
             }
             
             // Game loop
@@ -1039,7 +1141,15 @@
                 tempOutdoorTemp: null,
                 tempPressure: null,
                 tempMoneyTickInterval: 1000,
-                tempMoneyMultiplier: 1
+                tempMoneyMultiplier: 1,
+                stats: {
+                    totalMoneyEarned: 0,
+                    repairsPerformed: 0,
+                    upgradesPerformed: 0,
+                    maxPower: 100,
+                    eventsOccurred: 0,
+                    gameOver: false
+                }
             };
             
             // Clear any ongoing event effects
@@ -1118,6 +1228,51 @@
             }
         }
 
+        function showStatsOverlay(isGameOver = false) {
+            if (!elements.statsOverlay) return;
+            
+            // Update stats
+            if (elements.statDays) elements.statDays.textContent = gameState.dayCounter - 1;
+            if (elements.statMoney) elements.statMoney.textContent = gameState.stats.totalMoneyEarned.toLocaleString('ru-RU');
+            if (elements.statRepairs) elements.statRepairs.textContent = gameState.stats.repairsPerformed;
+            if (elements.statUpgrades) elements.statUpgrades.textContent = gameState.stats.upgradesPerformed;
+            if (elements.statPower) elements.statPower.textContent = gameState.stats.maxPower.toLocaleString('ru-RU');
+            if (elements.statEvents) elements.statEvents.textContent = gameState.stats.eventsOccurred;
+            
+            // Update title and message based on game state
+            if (isGameOver) {
+                if (elements.statsTitle) elements.statsTitle.textContent = "Игра окончена!";
+                if (elements.gameOverMessage) elements.gameOverMessage.style.display = 'block';
+                if (elements.closeStatsBtn) elements.closeStatsBtn.disabled = true;
+            } else {
+                if (elements.statsTitle) elements.statsTitle.textContent = "Пауза";
+                if (elements.gameOverMessage) elements.gameOverMessage.style.display = 'none';
+                if (elements.closeStatsBtn) elements.closeStatsBtn.disabled = false;
+            }
+            
+            elements.statsOverlay.classList.add('active');
+        }
+
+        function closeStatsOverlay() {
+            if (!elements.statsOverlay) return;
+            
+            elements.statsOverlay.classList.remove('active');
+            // Resume game if it was paused (not game over)
+            if (!gameState.stats.gameOver) {
+                gameState.isPaused = false;
+                if (elements.pauseBtn) {
+                    elements.pauseBtn.textContent = '⏸️';
+                }
+            }
+        }
+
+        function restartGame() {
+            resetGameState();
+            closeStatsOverlay();
+            // Add log entry about restart
+            addLogEntry('🔄 Игра начата заново');
+        }
+
         function checkForRandomEvent() {
             const now = Date.now();
             if (now - gameState.lastEventCheck >= 60000) { // Check every minute
@@ -1138,6 +1293,9 @@
                 type: eventData.type,
                 startTime: Date.now()
             };
+            
+            // Update stats
+            gameState.stats.eventsOccurred++;
             
             // Apply the event effect
             eventData.apply();
@@ -1198,6 +1356,9 @@
                 gameState.money -= gameState.upgradeCost;
                 gameState.upgradeLevel++;
                 
+                // Update stats
+                gameState.stats.upgradesPerformed++;
+                
                 // More gradual cost progression (reduced from 1.2 to 1.15)
                 const moneyIncrease = Math.max(1, Math.floor(10 * Math.pow(1.1, gameState.upgradeLevel)));
                 // Reduced power increase to 10% of original
@@ -1206,6 +1367,11 @@
                 gameState.moneyPerTick += moneyIncrease;
                 gameState.power += powerIncrease;
                 gameState.upgradeCost = Math.floor(100 * Math.pow(1.15, gameState.upgradeLevel));
+                
+                // Update max power stat
+                if (gameState.power > gameState.stats.maxPower) {
+                    gameState.stats.maxPower = gameState.power;
+                }
                 
                 // Add log entry
                 const upgradeName = upgradeNames[Math.floor(Math.random() * upgradeNames.length)];
@@ -1234,6 +1400,9 @@
                 
                 // Add 100 rubles
                 gameState.money += 100;
+                
+                // Update stats
+                gameState.stats.totalMoneyEarned += 100;
                 
                 // Add log entry
                 addLogEntry(`💰 Мелкое улучшение: +100 ₽`);
@@ -1265,6 +1434,10 @@
                         building.temp = 20;
                         gameState.crews--;
                         repaired = true;
+                        
+                        // Update stats
+                        gameState.stats.repairsPerformed++;
+                        
                         addLogEntry(`🛠️ Проведён аварийный ремонт объекта`);
                         break;
                     }
@@ -1301,6 +1474,11 @@
             gameState.isPaused = !gameState.isPaused;
             if (elements.pauseBtn) {
                 elements.pauseBtn.textContent = gameState.isPaused ? '▶️' : '⏸️';
+            }
+            
+            // Show stats overlay when pausing
+            if (gameState.isPaused && !gameState.stats.gameOver) {
+                showStatsOverlay(false);
             }
             
             // Play button sound
@@ -1350,7 +1528,10 @@
                 b.failed && b.failureType === 'freeze'
             );
             
-            if (allFrozen) {
+            if (allFrozen && !gameState.stats.gameOver) {
+                gameState.stats.gameOver = true;
+                gameState.isPaused = true;
+                
                 const gameOverMessage = '💀 ИГРА ОКОНЧЕНА! Все объекты остыли до критической температуры.';
                 
                 addLogEntry(gameOverMessage);
@@ -1358,11 +1539,13 @@
                 // Play alarm sound (will play even if game is paused)
                 playSound('alarm');
                 
-                // Pause the game
-                gameState.isPaused = true;
+                // Update pause button
                 if (elements.pauseBtn) {
                     elements.pauseBtn.textContent = '▶️';
                 }
+                
+                // Show stats overlay with game over message
+                showStatsOverlay(true);
             }
         }
 
@@ -1424,6 +1607,8 @@
                 // Earn money only if not all buildings are failed
                 if (!areAllBuildingsFailed()) {
                     gameState.money += currentMoneyPerTick;
+                    // Update stats
+                    gameState.stats.totalMoneyEarned += currentMoneyPerTick;
                 }
                 
                 // Update building temperatures with new smoother formulas
