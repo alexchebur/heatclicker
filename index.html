@@ -165,7 +165,7 @@
                 flex-direction: row;
             }
             
-            .game-field, .events-panel {
+            .game-field-container, .events-panel {
                 width: 50%;
                 height: 100%;
             }
@@ -176,95 +176,87 @@
                 flex-direction: column;
             }
             
-            .game-field, .events-panel {
+            .game-field-container, .events-panel {
                 width: 100%;
                 min-height: 35vh;
             }
+        }
+        
+        .game-field-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1/1; /* Сохраняем пропорции 1:1 */
         }
         
         .game-field {
             background: rgba(0, 0, 0, 0.6);
             border-radius: 8px;
             padding: 1vh 1vw;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             position: relative;
-            height: 30vh; /* Фиксированная высота */
-            width: 100%; /* Полная ширина */
-        }
-        
-        .thermal-diagram {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             width: 100%;
             height: 100%;
-            justify-content: space-around;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: calc(2px + 0.1vh);
         }
         
-        .row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            background-image: url('thermal-grid-background.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            opacity: 0.2;
+            z-index: -1;
         }
         
-        .connection-line {
-            flex-grow: 1;
-            height: 2px;
-            background: linear-gradient(to right, #6b7280, #9ca3af);
-            margin: 0 10px;
-            position: relative;
-        }
-        
-        .center-item {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            margin: 5px 0;
-        }
-        
-        .building-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+        .grid-cell {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            margin: 0 5px;
-            transition: background-color 0.3s ease;
+            font-size: calc(7px + 0.2vh);
         }
         
-        .building-icon.temp-normal { background: rgba(74, 222, 128, 0.8); }
-        .building-icon.temp-cold { background: rgba(59, 130, 246, 0.8); }
-        .building-icon.temp-hot { background: rgba(245, 158, 11, 0.8); }
-        .building-icon.temp-failure { background: rgba(239, 68, 68, 0.8); }
-        
-        .building-temp {
-            font-size: 12px;
-            text-align: center;
-            margin-top: 5px;
-        }
-        
-        .power-plant-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+        .power-plant {
+            grid-column: 2 / 3;
+            grid-row: 2 / 3;
             background: linear-gradient(45deg, #f59e0b, #ef4444);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: calc(14px + 0.3vh);
+            font-weight: bold;
+            border-radius: 4px;
         }
         
-        .vertical-pipe {
-            width: 2px;
-            height: 30px;
-            background: linear-gradient(to bottom, #6b7280, #9ca3af);
-            margin: 5px 0;
+        .building {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5vh 0.5vw;
+            text-align: center;
+            font-size: calc(7px + 0.2vh);
+            font-weight: bold;
+            border-radius: 3px;
         }
+        
+        .building.school { grid-column: 1 / 2; grid-row: 1 / 2; }
+        .building.house { grid-column: 3 / 4; grid-row: 1 / 2; }
+        .building.office { grid-column: 1 / 2; grid-row: 3 / 4; }
+        .building.institution { grid-column: 3 / 4; grid-row: 3 / 4; }
+        
+        .building.temp-normal { background: rgba(74, 222, 128, 0.8); }
+        .building.temp-cold { background: rgba(59, 130, 246, 0.8); }
+        .building.temp-hot { background: rgba(245, 158, 11, 0.8); }
+        .building.temp-failure { background: rgba(239, 68, 68, 0.8); }
         
         .events-panel {
             background: rgba(0, 0, 0, 0.7);
@@ -412,9 +404,8 @@
             .log { height: 6vh; min-height: 30px; }
             .event-display { min-height: 8vh; }
             .btn { padding: 0.6vh 1.2vw; font-size: calc(var(--font-size-base) * 0.8); }
-            .game-field { height: 25vh; }
-            .building-icon { width: 30px; height: 30px; font-size: 16px; }
-            .power-plant-icon { width: 40px; height: 40px; font-size: 20px; }
+            .building { font-size: calc(6px + 0.2vh); }
+            .power-plant { font-size: calc(12px + 0.3vh); }
         }
     </style>
 </head>
@@ -445,34 +436,25 @@
         </div>
         
         <div class="main-content">
-            <div class="game-field" id="game-field">
-                <div class="thermal-diagram">
-                    <div class="row">
-                        <div class="icon-container" id="school">
-                            <div class="building-icon temp-normal">🏫</div>
-                            <div class="building-temp">20°</div>
-                        </div>
-                        <div class="connection-line"></div>
-                        <div class="connection-line"></div>
-                        <div class="icon-container" id="house">
-                            <div class="building-icon temp-normal">🏠</div>
-                            <div class="building-temp">20°</div>
-                        </div>
+            <div class="game-field-container">
+                <div class="game-field" id="game-field">
+                    <div class="background-image"></div>
+                    <div class="power-plant">🏭</div>
+                    <div class="building school" id="school">
+                        <div class="icon">🏫</div>
+                        <div class="temp">20°</div>
                     </div>
-                    <div class="center-item">
-                        <div class="power-plant-icon">🏭</div>
+                    <div class="building house" id="house">
+                        <div class="icon">🏠</div>
+                        <div class="temp">20°</div>
                     </div>
-                    <div class="row">
-                        <div class="icon-container" id="office">
-                            <div class="building-icon temp-normal">🏢</div>
-                            <div class="building-temp">20°</div>
-                        </div>
-                        <div class="vertical-pipe"></div>
-                        <div class="vertical-pipe"></div>
-                        <div class="icon-container" id="institution">
-                            <div class="building-icon temp-normal">🏥</div>
-                            <div class="building-temp">20°</div>
-                        </div>
+                    <div class="building office" id="office">
+                        <div class="icon">🏢</div>
+                        <div class="temp">20°</div>
+                    </div>
+                    <div class="building institution" id="institution">
+                        <div class="icon">🏥</div>
+                        <div class="temp">20°</div>
                     </div>
                 </div>
             </div>
@@ -1180,24 +1162,20 @@
                 const element = elements.buildings[key];
                 if (!element) continue;
                 
-                const iconElement = element.querySelector('.building-icon');
-                const tempElement = element.querySelector('.building-temp');
-                
+                const tempElement = element.querySelector('.temp');
                 if (tempElement) {
                     tempElement.textContent = Math.round(building.temp) + '°';
                 }
                 
-                // Remove all temp classes
-                iconElement.className = 'building-icon';
-                
+                element.className = `building ${key}`;
                 if (building.failed) {
-                    iconElement.classList.add('temp-failure');
+                    element.classList.add('temp-failure');
                 } else if (building.temp < 15) {
-                    iconElement.classList.add('temp-cold');
+                    element.classList.add('temp-cold');
                 } else if (building.temp > 30) {
-                    iconElement.classList.add('temp-hot');
+                    element.classList.add('temp-hot');
                 } else {
-                    iconElement.classList.add('temp-normal');
+                    element.classList.add('temp-normal');
                 }
             }
         }
