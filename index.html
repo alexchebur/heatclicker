@@ -388,13 +388,28 @@
             color: white;
         }
         
+        .log-section {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--spacing-unit) * 0.5);
+        }
+
+        .log-title {
+            font-size: calc(var(--font-size-base) * 0.9);
+            font-weight: bold;
+            text-align: center;
+            color: #fbbf24;
+            margin-bottom: calc(var(--spacing-unit) * 0.3);
+        }
+
+        /* Обновлённые стили для самого лога (можно оставить как есть) */
         .log {
             background: rgba(0, 0, 0, 0.8);
             border-radius: 5px;
             padding: 0.5vh 0.8vw;
-            height: 12vh;
+            height: 8vh;
             min-height: 40px;
-            max-height: 150px;
+            max-height: 100px;
             overflow-y: auto;
             font-size: calc(var(--font-size-base) * 0.7);
             line-height: 1.2;
@@ -644,9 +659,13 @@
                         <span id="repair-crews">10</span> бригад
                     </button>
                 </div>
-                <div class="log" id="log"></div>
+                
+                <!-- Добавлен заголовок для лога -->
+                <div class="log-section">
+                    <div class="log-title">Журнал событий</div>
+                    <div class="log" id="log"></div>
+                </div>
             </div>
-        </div>
 
         <!-- Окно статистики -->
         <div class="stats-overlay" id="stats-overlay">
