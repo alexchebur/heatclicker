@@ -19,74 +19,44 @@
             font-family: 'Roboto', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
-        
         body {
             background: rgb(243, 115, 33);
             color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
-            padding: 2px;
             overflow: hidden;
+            padding: 0;
+        }
+        .container {
+            width: 720px;
+            height: 1280px;
+            max-width: 100vw;
+            max-height: 100vh;
+            aspect-ratio: 720 / 1280;
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            gap: 6px;
+            padding: 2px;
+            box-sizing: border-box;
+            background: rgb(243, 115, 33);
+            overflow: hidden;
         }
-        
         /* Безопасные зоны для iPhone */
         @supports (padding: max(0px)) {
-            body {
+            .container {
                 padding-top: max(2px, env(safe-area-inset-top));
                 padding-bottom: max(2px, env(safe-area-inset-bottom));
                 padding-left: max(2px, env(safe-area-inset-left));
                 padding-right: max(2px, env(safe-area-inset-right));
             }
         }
-        
         :root {
             --spacing-unit: 6px;
             --font-size-base: 12px;
             --padding-base: 8px;
         }
-        
-        @media (max-height: 600px) {
-            :root {
-                --spacing-unit: 4px;
-                --font-size-base: 10px;
-                --padding-base: 6px;
-            }
-            
-            body {
-                padding: 1px;
-            }
-        }
-        
-        @media (max-height: 500px) {
-            :root {
-                --spacing-unit: 3px;
-                --font-size-base: 9px;
-                --padding-base: 5px;
-            }
-        }
-        
-        @media (max-width: 400px) {
-            :root {
-                --spacing-unit: 2px;
-                --font-size-base: 8px;
-                --padding-base: 4px;
-            }
-        }
-        
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            min-height: 100%;
-            gap: var(--spacing-unit);
-            padding: 0;
-            overflow: hidden;
-        }
-        
         .header {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 8px;
@@ -94,21 +64,17 @@
             display: flex;
             flex-direction: column;
             gap: calc(var(--spacing-unit) * 0.7);
-            flex-shrink: 0;
         }
-        
         .top-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: calc(var(--font-size-base) * 0.9);
         }
-        
         .power-display {
             font-weight: 700;
             color: #4ade80;
         }
-        
         .pause-btn {
             background: rgb(243, 115, 33);
             border: none;
@@ -122,25 +88,21 @@
             justify-content: center;
             color: white;
         }
-        
         .sliders {
             display: flex;
             flex-direction: column;
             gap: calc(var(--spacing-unit) * 1.3);
         }
-        
         .slider-group {
             display: flex;
             flex-direction: column;
             gap: calc(var(--spacing-unit) * 0.3);
         }
-        
         .slider-label {
             display: flex;
             justify-content: space-between;
             font-size: calc(var(--font-size-base) * 0.8);
         }
-        
         .slider {
             width: 100%;
             height: calc(4px + 0.1vh);
@@ -149,7 +111,6 @@
             border-radius: 2px;
             outline: none;
         }
-        
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: calc(14px + 0.2vh);
@@ -158,114 +119,12 @@
             border-radius: 50%;
             cursor: pointer;
         }
-        
         .main-content {
             display: flex;
+            flex-direction: column;
             gap: var(--spacing-unit);
             flex: 1;
-            min-height: 0; /* Критически важно для flexbox */
-            overflow: hidden;
         }
-        
-        @media (min-width: 601px) and (min-height: 601px) {
-            .main-content {
-                flex-direction: row;
-            }
-            
-            .game-field-container, .events-panel {
-                width: 50%;
-                height: 100%;
-            }
-        }
-        
-        @media (max-width: 600px) or (max-height: 600px) {
-            .main-content {
-                flex-direction: column;
-            }
-            
-            .game-field-container, .events-panel {
-                width: 100%;
-                min-height: 35vh;
-            }
-        }
-        
-        .game-field-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1/1; /* Сохраняем пропорции 1:1 */
-            flex-shrink: 0;
-        }
-        
-        .game-field {
-            background: rgba(0, 0, 0, 0.6);
-            border-radius: 8px;
-            padding: 1vh 1vw;
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: calc(2px + 0.1vh);
-        }
-        
-        .background-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('thermal-grid-background.png');
-            background-size: cover;
-            background-position: center;
-            border-radius: 8px;
-            opacity: 0.2;
-            z-index: -1;
-        }
-        
-        .grid-cell {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: calc(7px + 0.2vh);
-        }
-        
-        .power-plant {
-            grid-column: 2 / 3;
-            grid-row: 2 / 3;
-            background: linear-gradient(45deg, #f59e0b, #ef4444);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: calc(14px + 0.3vh);
-            font-weight: bold;
-            border-radius: 4px;
-        }
-        
-        .building {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 0.5vh 0.5vw;
-            text-align: center;
-            font-size: calc(7px + 0.2vh);
-            font-weight: bold;
-            border-radius: 3px;
-        }
-        
-        .building.school { grid-column: 1 / 2; grid-row: 1 / 2; }
-        .building.house { grid-column: 3 / 4; grid-row: 1 / 2; }
-        .building.office { grid-column: 1 / 2; grid-row: 3 / 4; }
-        .building.institution { grid-column: 3 / 4; grid-row: 3 / 4; }
-        
-        .building.temp-normal { background: rgba(74, 222, 128, 0.8); }
-        .building.temp-cold { background: rgba(59, 130, 246, 0.8); }
-        .building.temp-hot { background: rgba(245, 158, 11, 0.8); }
-        .building.temp-failure { background: rgba(239, 68, 68, 0.8); }
-        
         .events-panel {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 8px;
@@ -273,18 +132,13 @@
             display: flex;
             flex-direction: column;
             gap: calc(var(--spacing-unit) * 0.8);
-            overflow: hidden;
-            flex-shrink: 0;
         }
-        
         .events-title {
             font-size: calc(var(--font-size-base) * 1);
             font-weight: bold;
             text-align: center;
             margin-bottom: calc(var(--spacing-unit) * 0.8);
-            flex-shrink: 0;
         }
-        
         .event-display {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 6px;
@@ -298,9 +152,7 @@
             align-items: center;
             text-align: center;
             overflow: hidden;
-            flex: 1;
         }
-        
         .event-title {
             font-size: calc(var(--font-size-base) * 0.9);
             margin-bottom: calc(var(--spacing-unit) * 0.5);
@@ -310,7 +162,6 @@
             word-break: break-word;
             hyphens: auto;
         }
-        
         .event-effect {
             font-size: calc(var(--font-size-base) * 0.75);
             color: #93c5fd;
@@ -321,18 +172,63 @@
             word-break: break-word;
             hyphens: auto;
             line-height: 1.2;
-            flex-shrink: 0;
         }
-        
         .event-timer {
             font-size: calc(var(--font-size-base) * 0.75);
             color: #ef4444;
             font-weight: bold;
             width: 100%;
             text-wrap: nowrap;
-            flex-shrink: 0;
         }
-        
+        .game-field {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            padding: 1vh 1vw;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: calc(2px + 0.1vh);
+            aspect-ratio: 1 / 1;
+            flex: 1;
+        }
+        .grid-cell {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: calc(7px + 0.2vh);
+        }
+        .power-plant {
+            grid-column: 2 / 3;
+            grid-row: 2 / 3;
+            background: linear-gradient(45deg, #f59e0b, #ef4444);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: calc(14px + 0.3vh);
+            font-weight: bold;
+            border-radius: 4px;
+        }
+        .building {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5vh 0.5vw;
+            text-align: center;
+            font-size: calc(7px + 0.2vh);
+            font-weight: bold;
+            border-radius: 3px;
+        }
+        .building.school { grid-column: 1 / 2; grid-row: 1 / 2; }
+        .building.house { grid-column: 3 / 4; grid-row: 1 / 2; }
+        .building.office { grid-column: 1 / 2; grid-row: 3 / 4; }
+        .building.institution { grid-column: 3 / 4; grid-row: 3 / 4; }
+        .building.temp-normal { background: rgba(74, 222, 128, 0.8); }
+        .building.temp-cold { background: rgba(59, 130, 246, 0.8); }
+        .building.temp-hot { background: rgba(245, 158, 11, 0.8); }
+        .building.temp-failure { background: rgba(239, 68, 68, 0.8); }
         .controls {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 8px;
@@ -340,24 +236,18 @@
             display: flex;
             gap: calc(var(--spacing-unit) * 1.3);
             flex-direction: column;
-            flex-shrink: 0;
         }
-        
         .money-display {
             font-size: calc(var(--font-size-base) * 1.2);
             font-weight: bold;
             text-align: center;
             color: #fbbf24;
-            flex-shrink: 0;
         }
-        
         .buttons {
             display: flex;
             gap: calc(var(--spacing-unit) * 0.6);
             flex-wrap: wrap;
-            flex-shrink: 0;
         }
-        
         .btn {
             flex: 1;
             min-width: calc(30% - var(--spacing-unit));
@@ -374,22 +264,18 @@
             gap: calc(var(--spacing-unit) * 0.2);
             color: white;
         }
-        
         .upgrade-btn {
             background: linear-gradient(45deg, #10b981, #059669);
             color: white;
         }
-        
         .small-upgrade-btn {
             background: linear-gradient(45deg, #6366f1, #4f46e5);
             color: white;
         }
-        
         .repair-btn {
             background: linear-gradient(45deg, #8b5cf6, #7c3aed);
             color: white;
         }
-        
         .log {
             background: rgba(0, 0, 0, 0.8);
             border-radius: 5px;
@@ -400,15 +286,12 @@
             overflow-y: auto;
             font-size: calc(var(--font-size-base) * 0.7);
             line-height: 1.2;
-            flex-shrink: 0;
         }
-        
         .log-entry {
             margin-bottom: calc(var(--spacing-unit) * 0.2);
             padding-bottom: calc(var(--spacing-unit) * 0.2);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
         .icon {
             font-size: calc(9px + 0.2vh);
             margin-bottom: calc(var(--spacing-unit) * 0.1);
@@ -440,31 +323,7 @@
                 </div>
             </div>
         </div>
-        
         <div class="main-content">
-            <div class="game-field-container">
-                <div class="game-field" id="game-field">
-                    <div class="background-image"></div>
-                    <div class="power-plant">🏭</div>
-                    <div class="building school" id="school">
-                        <div class="icon">🏫</div>
-                        <div class="temp">20°</div>
-                    </div>
-                    <div class="building house" id="house">
-                        <div class="icon">🏠</div>
-                        <div class="temp">20°</div>
-                    </div>
-                    <div class="building office" id="office">
-                        <div class="icon">🏢</div>
-                        <div class="temp">20°</div>
-                    </div>
-                    <div class="building institution" id="institution">
-                        <div class="icon">🏥</div>
-                        <div class="temp">20°</div>
-                    </div>
-                </div>
-            </div>
-            
             <div class="events-panel">
                 <div class="events-title">Случайные события</div>
                 <div class="event-display" id="event-display">
@@ -473,8 +332,26 @@
                     <div class="event-timer" id="event-timer"></div>
                 </div>
             </div>
+            <div class="game-field" id="game-field">
+                <div class="power-plant">🏭</div>
+                <div class="building school" id="school">
+                    <div class="icon">🏫</div>
+                    <div class="temp">20°</div>
+                </div>
+                <div class="building house" id="house">
+                    <div class="icon">🏠</div>
+                    <div class="temp">20°</div>
+                </div>
+                <div class="building office" id="office">
+                    <div class="icon">🏢</div>
+                    <div class="temp">20°</div>
+                </div>
+                <div class="building institution" id="institution">
+                    <div class="icon">🏥</div>
+                    <div class="temp">20°</div>
+                </div>
+            </div>
         </div>
-        
         <div class="controls">
             <div class="money-display">Выручка: <span id="money">100</span> ₽</div>
             <div class="buttons">
@@ -494,7 +371,6 @@
             <div class="log" id="log"></div>
         </div>
     </div>
-
     <script>
         // Блокировка жестов масштабирования на iOS
         document.documentElement.addEventListener('touchstart', function(event) {
@@ -502,7 +378,6 @@
                 event.preventDefault();
             }
         }, { passive: false });
-
         let lastTouchEnd = 0;
         document.documentElement.addEventListener('touchend', function(event) {
             const now = new Date().getTime();
@@ -511,17 +386,27 @@
             }
             lastTouchEnd = now;
         }, { passive: false });
-
+        // Create grid cells (3x3) after DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const gameField = document.getElementById('game-field');
+            if (gameField) {
+                for (let i = 0; i < 9; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    gameField.appendChild(cell);
+                }
+            }
+        });
         // Game state
         let gameState = {
-            money: 100, // Starting with 100 rubles
-            power: 100, // kW
+            money: 100,
+            power: 100,
             crews: 10,
-            pressure: 50, // % - minimum 5%
-            temperature: 34, // °C - changed from % to degrees
-            outdoorTemp: -5, // Random between -30 and +5
+            pressure: 50,
+            temperature: 34,
+            outdoorTemp: -5,
             buildings: {
-                school: { temp: 20, failed: false, failureType: null }, // failureType: 'overheat' or 'freeze'
+                school: { temp: 20, failed: false, failureType: null },
                 house: { temp: 20, failed: false, failureType: null },
                 office: { temp: 20, failed: false, failureType: null },
                 institution: { temp: 20, failed: false, failureType: null }
@@ -533,25 +418,19 @@
             lastTick: Date.now(),
             lastWeatherUpdate: Date.now(),
             dayCounter: 1,
-            // Event system
             lastEventCheck: Date.now(),
             currentEvent: null,
-            // Temporary modifiers
             tempOutdoorTemp: null,
             tempPressure: null,
-            tempMoneyTickInterval: 1000, // milliseconds
+            tempMoneyTickInterval: 1000,
             tempMoneyMultiplier: 1
         };
-
-        // Sound system
         const sounds = {
             button: null,
             alarm: null,
             event: null
         };
         let soundsEnabled = true;
-
-        // DOM elements
         const elements = {
             money: null,
             power: null,
@@ -580,8 +459,6 @@
             eventEffect: null,
             eventTimer: null
         };
-
-        // Upgrade names
         const upgradeNames = [
             'Заменена газотурбинная установка',
             'Модернизирована система теплообмена',
@@ -594,8 +471,6 @@
             'Заменены регуляторы давления',
             'Установлены новые теплоизоляционные материалы'
         ];
-
-        // Event definitions
         const events = [
             {
                 title: "В системе новый потребитель, крупный торговый центр",
@@ -615,11 +490,11 @@
                 type: "ongoing",
                 apply: () => { 
                     gameState.tempOutdoorTemp = -35;
-                    updateUI(); // Обновляем интерфейс сразу после изменения
+                    updateUI();
                 },
                 revert: () => { 
                     gameState.tempOutdoorTemp = null;
-                    updateUI(); // Обновляем интерфейс при отмене
+                    updateUI();
                 }
             },
             {
@@ -628,14 +503,13 @@
                 type: "ongoing",
                 apply: () => { 
                     gameState.tempPressure = 20;
-                    // Блокируем управление давлением через ползунок
                     if (elements.pressureSlider) elements.pressureSlider.disabled = true;
-                    updateUI(); // Обновляем интерфейс сразу после изменения
+                    updateUI();
                 },
                 revert: () => { 
                     gameState.tempPressure = null;
                     if (elements.pressureSlider) elements.pressureSlider.disabled = false;
-                    updateUI(); // Обновляем интерфейс при отмене
+                    updateUI();
                 }
             },
             {
@@ -656,11 +530,11 @@
                 type: "ongoing",
                 apply: () => { 
                     gameState.tempMoneyTickInterval = 2000;
-                    updateUI(); // Обновляем интерфейс
+                    updateUI();
                 },
                 revert: () => { 
                     gameState.tempMoneyTickInterval = 1000;
-                    updateUI(); // Обновляем интерфейс при отмене
+                    updateUI();
                 }
             },
             {
@@ -669,11 +543,11 @@
                 type: "ongoing",
                 apply: () => { 
                     gameState.tempMoneyTickInterval = 500;
-                    updateUI(); // Обновляем интерфейс
+                    updateUI();
                 },
                 revert: () => { 
                     gameState.tempMoneyTickInterval = 1000;
-                    updateUI(); // Обновляем интерфейс при отмене
+                    updateUI();
                 }
             },
             {
@@ -689,94 +563,45 @@
                 apply: () => { gameState.money += 500000; }
             }
         ];
-
-        // Initialize sounds
         function initSounds() {
             try {
-                // Initialize sound objects with proper preloading
                 sounds.button = new Audio();
                 sounds.alarm = new Audio();
                 sounds.event = new Audio();
-                
-                // Set to loop and preload
                 sounds.button.loop = false;
                 sounds.alarm.loop = false;
                 sounds.event.loop = false;
-                
                 sounds.button.preload = 'auto';
                 sounds.alarm.preload = 'auto';
                 sounds.event.preload = 'auto';
-                
-                // Attempt to load actual sound files with error handling
                 sounds.button.src = 'sounds/button.mp3';
                 sounds.alarm.src = 'sounds/alarm.mp3';
                 sounds.event.src = 'sounds/event.mp3';
-                
-                // Set up error handling for audio loading
-                sounds.button.onerror = function(e) { 
-                    console.log('Button sound not loaded, continuing without sound', e);
-                    soundsEnabled = false;
-                };
-                sounds.alarm.onerror = function(e) { 
-                    console.log('Alarm sound not loaded, continuing without sound', e);
-                    soundsEnabled = false;
-                };
-                sounds.event.onerror = function(e) { 
-                    console.log('Event sound not loaded, continuing without sound', e);
-                    soundsEnabled = false;
-                };
-                
-                // Try to load sounds
+                sounds.button.onerror = function(e) { soundsEnabled = false; };
+                sounds.alarm.onerror = function(e) { soundsEnabled = false; };
+                sounds.event.onerror = function(e) { soundsEnabled = false; };
                 sounds.button.load();
                 sounds.alarm.load();
                 sounds.event.load();
             } catch (e) {
-                console.warn('Audio initialization failed, sounds disabled:', e);
                 soundsEnabled = false;
             }
         }
-
-        // Play sound safely - clone audio element for multiple plays
-        // Modified to allow alarm sound even when paused
         function playSound(soundName) {
-            // Allow alarm sound to play even when game is paused
             if (!soundsEnabled || (gameState.isPaused && soundName !== 'alarm')) {
                 return;
             }
-            
             try {
                 const originalSound = sounds[soundName];
                 if (!originalSound) return;
-                
-                // Create a clone of the audio element for each play
                 const sound = originalSound.cloneNode();
-                sound.volume = 0.7; // Slightly reduce volume
-                
-                // Play the cloned sound
-                sound.play().catch(e => {
-                    console.log('Sound playback failed:', e);
-                    
-                    // Fallback for browsers with strict autoplay policies
-                    if (e.name === 'NotAllowedError') {
-                        console.log('Audio autoplay blocked by browser policy. User interaction may be required.');
-                    }
-                });
-                
-                // Clean up the clone after playback
-                sound.onended = function() {
-                    sound.remove();
-                };
-            } catch (e) {
-                console.log('Sound playback error:', e);
-            }
+                sound.volume = 0.7;
+                sound.play().catch(e => {});
+                sound.onended = function() { sound.remove(); };
+            } catch (e) {}
         }
-
-        // Timer for upgrade feedback
         let upgradeFeedbackTimer = null;
-
-        // Initialize game
         function init() {
-            // Initialize DOM elements
             elements.money = document.getElementById('money');
             elements.power = document.getElementById('power');
             elements.crews = document.getElementById('crews');
@@ -801,16 +626,11 @@
             elements.eventTitle = document.getElementById('event-title');
             elements.eventEffect = document.getElementById('event-effect');
             elements.eventTimer = document.getElementById('event-timer');
-            
             initSounds();
             loadGameState();
             updateUI();
             updateBuildingStates();
-            
-            // Set random outdoor temperature
-            gameState.outdoorTemp = Math.floor(Math.random() * 36) - 30; // -30 to +5
-            
-            // Event listeners
+            gameState.outdoorTemp = Math.floor(Math.random() * 36) - 30;
             if (elements.pressureSlider) {
                 elements.pressureSlider.addEventListener('input', handlePressureChange);
             }
@@ -829,85 +649,11 @@
             if (elements.pauseBtn) {
                 elements.pauseBtn.addEventListener('click', togglePause);
             }
-            
-            // Game loop
             setInterval(gameLoop, 100);
         }
-
-        function loadGameState() {
-            try {
-                // Remove state loading during development to avoid conflicts
-                // const saved = localStorage.getItem('tecClickerState');
-                // if (saved) {
-                //     const parsed = JSON.parse(saved);
-                //     // Merge with current state to handle new properties
-                //     Object.assign(gameState, parsed);
-                //     // Ensure pressure is at least 5%
-                //     if (gameState.pressure < 5) {
-                //         gameState.pressure = 5;
-                //     }
-                //     // Clear active event if it should have expired
-                //     if (gameState.currentEvent && Date.now() - gameState.currentEvent.startTime > 60000) {
-                //         endCurrentEvent();
-                //     } else if (gameState.currentEvent) {
-                //         // Обновляем состояние ползунков в соответствии с активным событием
-                //         if (gameState.tempPressure !== null && elements.pressureSlider) {
-                //             elements.pressureSlider.disabled = true;
-                //         }
-                //     }
-                // }
-            } catch (e) {
-                console.warn('Failed to load game state:', e);
-            }
-        }
-
-        function saveGameState() {
-            try {
-                // localStorage.setItem('tecClickerState', JSON.stringify(gameState));
-            } catch (e) {
-                console.warn('Failed to save game state:', e);
-            }
-        }
-
-        function resetGameState() {
-            gameState = {
-                money: 100,
-                power: 100,
-                crews: 10,
-                pressure: 50,
-                temperature: 34,
-                outdoorTemp: Math.floor(Math.random() * 36) - 30,
-                buildings: {
-                    school: { temp: 20, failed: false, failureType: null },
-                    house: { temp: 20, failed: false, failureType: null },
-                    office: { temp: 20, failed: false, failureType: null },
-                    institution: { temp: 20, failed: false, failureType: null }
-                },
-                moneyPerTick: 1,
-                upgradeCost: 100,
-                upgradeLevel: 0,
-                isPaused: false,
-                lastTick: Date.now(),
-                lastWeatherUpdate: Date.now(),
-                dayCounter: 1,
-                lastEventCheck: Date.now(),
-                currentEvent: null,
-                tempOutdoorTemp: null,
-                tempPressure: null,
-                tempMoneyTickInterval: 1000,
-                tempMoneyMultiplier: 1
-            };
-            
-            // Clear any ongoing event effects
-            if (elements.pressureSlider && elements.pressureSlider.disabled) {
-                elements.pressureSlider.disabled = false;
-            }
-            
-            updateUI();
-            updateBuildingStates();
-            saveGameState();
-        }
-
+        function loadGameState() {}
+        function saveGameState() {}
+        function resetGameState() {}
         function updateUI() {
             if (elements.money) elements.money.textContent = Math.floor(gameState.money).toLocaleString('ru-RU');
             if (elements.power) {
@@ -920,50 +666,32 @@
             if (elements.crews) elements.crews.textContent = gameState.crews;
             if (elements.dayCounter) elements.dayCounter.textContent = gameState.dayCounter;
             if (elements.repairCrews) elements.repairCrews.textContent = gameState.crews;
-            
-            // Update outdoor temperature with temporary modifier if exists
             const currentOutdoorTemp = gameState.tempOutdoorTemp !== null ? gameState.tempOutdoorTemp : gameState.outdoorTemp;
             if (elements.outdoorTemp) elements.outdoorTemp.textContent = currentOutdoorTemp;
-            
-            // Update pressure with temporary modifier if exists
             const currentPressure = gameState.tempPressure !== null ? gameState.tempPressure : gameState.pressure;
             if (elements.pressureValue) elements.pressureValue.textContent = Math.round(currentPressure);
-            // Обновляем положение ползунка давления
             if (gameState.tempPressure === null && elements.pressureSlider) {
                 elements.pressureSlider.value = gameState.pressure;
             }
-            
-            // Update temperature slider
             if (elements.tempSlider) elements.tempSlider.value = gameState.temperature;
             if (elements.tempValue) elements.tempValue.textContent = Math.round(gameState.temperature);
-            
-            // Update upgrade cost
             if (elements.upgradeCost) elements.upgradeCost.textContent = gameState.upgradeCost.toLocaleString('ru-RU');
-            
-            // Update event display
             updateEventDisplay();
         }
-
         function updateEventDisplay() {
             if (!elements.eventTitle || !elements.eventEffect || !elements.eventTimer) return;
-            
             if (gameState.currentEvent) {
                 const elapsed = Date.now() - gameState.currentEvent.startTime;
                 const remaining = 60000 - elapsed;
-                // Ensure remaining is not negative
                 const safeRemaining = Math.max(0, remaining);
                 const seconds = Math.ceil(safeRemaining / 1000);
-                
                 elements.eventTitle.textContent = gameState.currentEvent.title;
                 elements.eventEffect.textContent = `(${gameState.currentEvent.effect})`;
-                
                 if (safeRemaining > 0) {
                     elements.eventTimer.textContent = `Осталось: ${seconds} сек`;
                 } else {
                     elements.eventTimer.textContent = "Завершено";
                 }
-                
-                // End event if remaining time is zero or negative
                 if (remaining <= 0) {
                     endCurrentEvent();
                 }
@@ -973,20 +701,16 @@
                 elements.eventTimer.textContent = "";
             }
         }
-
         function checkForRandomEvent() {
             const now = Date.now();
-            if (now - gameState.lastEventCheck >= 60000) { // Check every minute
+            if (now - gameState.lastEventCheck >= 60000) {
                 gameState.lastEventCheck = now;
-                
-                // 30% chance of event occurring
                 if (Math.random() < 0.3 && !gameState.currentEvent) {
                     const randomEvent = events[Math.floor(Math.random() * events.length)];
                     startEvent(randomEvent);
                 }
             }
         }
-
         function startEvent(eventData) {
             gameState.currentEvent = {
                 title: eventData.title,
@@ -994,21 +718,12 @@
                 type: eventData.type,
                 startTime: Date.now()
             };
-            
-            // Apply the event effect
             eventData.apply();
-            
-            // Log the event
             addLogEntry(`🎲 ${eventData.title} (${eventData.effect})`);
-            
-            // Play event sound
             playSound('event');
-            
             updateEventDisplay();
-            // UI already updated in apply/revert functions
             saveGameState();
         }
-
         function endCurrentEvent() {
             if (gameState.currentEvent) {
                 const event = events.find(e => e.title === gameState.currentEvent.title);
@@ -1021,98 +736,65 @@
                 saveGameState();
             }
         }
-
         function handlePressureChange() {
-            // Ensure pressure is at least 5%
-            // But don't allow changes if there's a temporary pressure event
             if (gameState.tempPressure === null && elements.pressureSlider) {
                 gameState.pressure = Math.max(5, parseInt(elements.pressureSlider.value));
                 updateUI();
             }
         }
-
         function handleTempChange() {
             if (elements.tempSlider) {
                 gameState.temperature = parseInt(elements.tempSlider.value);
                 updateUI();
             }
         }
-
         function handleUpgrade() {
             if (gameState.money >= gameState.upgradeCost && !gameState.isPaused) {
-                // Play button sound
                 playSound('button');
-                
-                // Add visual feedback - darken button
                 if (elements.upgradeBtn) {
                     elements.upgradeBtn.style.opacity = '0.7';
                     setTimeout(() => {
                         if (elements.upgradeBtn) elements.upgradeBtn.style.opacity = '1';
-                    }, 333); // 1/3 second
+                    }, 333);
                 }
-                
                 gameState.money -= gameState.upgradeCost;
                 gameState.upgradeLevel++;
-                
-                // More gradual cost progression (reduced from 1.2 to 1.15)
                 const moneyIncrease = Math.max(1, Math.floor(10 * Math.pow(1.1, gameState.upgradeLevel)));
-                // Reduced power increase to 10% of original
                 const powerIncrease = Math.max(1, Math.floor(10 * Math.pow(1.05, gameState.upgradeLevel)));
-                
                 gameState.moneyPerTick += moneyIncrease;
                 gameState.power += powerIncrease;
                 gameState.upgradeCost = Math.floor(100 * Math.pow(1.15, gameState.upgradeLevel));
-                
-                // Add log entry
                 const upgradeName = upgradeNames[Math.floor(Math.random() * upgradeNames.length)];
-                addLogEntry(`🔧 ${upgradeName} (+${moneyIncrease} ₽/такт, +${powerIncrease} кВт)`);
-                
-                // Show money increase feedback on button
+                addLogEntry(`🔧 ${upgradeName} (+${moneyIncrease} ₽/tакт, +${powerIncrease} кВт)`);
                 showUpgradeFeedback(moneyIncrease);
-                
                 updateUI();
                 saveGameState();
             }
         }
-
         function handleSmallUpgrade() {
             if (!gameState.isPaused) {
-                // Play button sound
                 playSound('button');
-                
-                // Add visual feedback - darken button
                 if (elements.smallUpgradeBtn) {
                     elements.smallUpgradeBtn.style.opacity = '0.7';
                     setTimeout(() => {
                         if (elements.smallUpgradeBtn) elements.smallUpgradeBtn.style.opacity = '1';
-                    }, 333); // 1/3 second
+                    }, 333);
                 }
-                
-                // Add 100 rubles
                 gameState.money += 100;
-                
-                // Add log entry
                 addLogEntry(`💰 Мелкое улучшение: +100 ₽`);
-                
-                // Update UI
                 updateUI();
                 saveGameState();
             }
         }
-
         function handleRepair() {
             if (gameState.crews > 0 && !gameState.isPaused) {
-                // Play button sound
                 playSound('button');
-                
-                // Add visual feedback - darken button
                 if (elements.repairBtn) {
                     elements.repairBtn.style.opacity = '0.7';
                     setTimeout(() => {
                         if (elements.repairBtn) elements.repairBtn.style.opacity = '1';
-                    }, 333); // 1/3 second
+                    }, 333);
                 }
-                
                 let repaired = false;
                 for (const building of Object.values(gameState.buildings)) {
                     if (building.failed) {
@@ -1132,19 +814,11 @@
                 }
             }
         }
-
         function showUpgradeFeedback(moneyIncrease) {
-            // Clear any existing timer
-            if (upgradeFeedbackTimer) {
-                clearTimeout(upgradeFeedbackTimer);
-            }
-            
-            // Change button text to show money increase
+            if (upgradeFeedbackTimer) clearTimeout(upgradeFeedbackTimer);
             if (elements.upgradeBtnText) {
                 elements.upgradeBtnText.textContent = `+${moneyIncrease} ₽/сек`;
             }
-            
-            // Reset back to original text after 1000ms (1 second)
             upgradeFeedbackTimer = setTimeout(() => {
                 if (elements.upgradeBtnText) {
                     elements.upgradeBtnText.textContent = 'Модернизация';
@@ -1152,27 +826,21 @@
                 upgradeFeedbackTimer = null;
             }, 1000);
         }
-
         function togglePause() {
             gameState.isPaused = !gameState.isPaused;
             if (elements.pauseBtn) {
                 elements.pauseBtn.textContent = gameState.isPaused ? '▶️' : '⏸️';
             }
-            
-            // Play button sound
             playSound('button');
         }
-
         function updateBuildingStates() {
             for (const [key, building] of Object.entries(gameState.buildings)) {
                 const element = elements.buildings[key];
                 if (!element) continue;
-                
                 const tempElement = element.querySelector('.temp');
                 if (tempElement) {
                     tempElement.textContent = Math.round(building.temp) + '°';
                 }
-                
                 element.className = `building ${key}`;
                 if (building.failed) {
                     element.classList.add('temp-failure');
@@ -1185,154 +853,95 @@
                 }
             }
         }
-
         function addLogEntry(message) {
             if (!elements.log) return;
-            
             const entry = document.createElement('div');
             entry.className = 'log-entry';
             entry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
             elements.log.insertBefore(entry, elements.log.firstChild);
-            
-            // Keep only last 10 entries
             while (elements.log.children.length > 10) {
                 elements.log.removeChild(elements.log.lastChild);
             }
         }
-
         function checkGameOver() {
-            // Check if all buildings are failed due to freezing
             const allFrozen = Object.values(gameState.buildings).every(b => 
                 b.failed && b.failureType === 'freeze'
             );
-            
             if (allFrozen) {
                 const gameOverMessage = '💀 ИГРА ОКОНЧЕНА! Все объекты остыли до критической температуры.';
-                
                 addLogEntry(gameOverMessage);
-                
-                // Play alarm sound (will play even if game is paused)
                 playSound('alarm');
-                
-                // Pause the game
                 gameState.isPaused = true;
                 if (elements.pauseBtn) {
                     elements.pauseBtn.textContent = '▶️';
                 }
             }
         }
-
         function updateWeatherAndDay() {
             const now = Date.now();
-            if (now - gameState.lastWeatherUpdate >= 10000) { // 10 seconds
+            if (now - gameState.lastWeatherUpdate >= 10000) {
                 gameState.lastWeatherUpdate = now;
-                // Change by ±1 degree randomly
                 const change = Math.random() < 0.5 ? -1 : 1;
-                // Only change if not overridden by an event
                 if (gameState.tempOutdoorTemp === null) {
                     gameState.outdoorTemp += change;
-                    // Keep within bounds
                     gameState.outdoorTemp = Math.max(-30, Math.min(5, gameState.outdoorTemp));
                 }
-                
-                // Increment day counter
                 gameState.dayCounter++;
-                
                 updateUI();
             }
         }
-
         function areAllBuildingsFailed() {
             return Object.values(gameState.buildings).every(b => b.failed);
         }
-
-        // Calculate temperature bonus multiplier
         function getTemperatureBonus() {
-            // Maximum temperature is 150°C, current temperature is gameState.temperature
-            // Bonus is percentage of max temperature (e.g., 75°C temp = 1.5x multiplier)
             const temperaturePercentage = gameState.temperature / 150;
             return 1 + temperaturePercentage;
         }
-
         function gameLoop() {
             if (gameState.isPaused) return;
-            
             const now = Date.now();
             const timeDiff = now - gameState.lastTick;
-            
-            // Check for random events
             checkForRandomEvent();
-            
-            // Update weather and day counter every 10 seconds
             updateWeatherAndDay();
-            
-            // Handle ongoing event effects
             let currentTickInterval = gameState.tempMoneyTickInterval;
             let baseMoneyPerTick = gameState.moneyPerTick * gameState.tempMoneyMultiplier;
-            
-            // Apply temperature bonus to money per tick
             const temperatureBonus = getTemperatureBonus();
             let currentMoneyPerTick = baseMoneyPerTick * temperatureBonus;
-            
             if (timeDiff >= currentTickInterval) {
                 gameState.lastTick = now;
-                
-                // Earn money only if not all buildings are failed
                 if (!areAllBuildingsFailed()) {
                     gameState.money += currentMoneyPerTick;
                 }
-                
-                // Update building temperatures with new smoother formulas
                 for (const [key, building] of Object.entries(gameState.buildings)) {
                     if (building.failed) {
-                        // Handle cooling/heating in failure state
                         if (building.failureType === 'overheat') {
-                            // Object slowly cools down after overheating
-                            building.temp -= 2; // Cooling rate for overheated objects
+                            building.temp -= 2;
                             if (building.temp <= 5) {
-                                // Object has cooled down to critical temperature
                                 building.temp = 5;
-                                building.failureType = 'freeze'; // Change failure type to freeze
+                                building.failureType = 'freeze';
                             }
                         } else if (building.failureType === 'freeze') {
-                            // Object remains frozen at 5 degrees or below
-                            building.temp = Math.max(0, building.temp); // Keep temperature at or above 0
+                            building.temp = Math.max(0, building.temp);
                         }
                         continue;
                     }
-                    
-                    // Calculate heating effect with smoother coefficients
-                    // Only apply heating effect if pressure is above minimum (5%)
                     let tempEffect = 0;
                     let pressureEffect = 0;
-                    
                     const currentPressure = gameState.tempPressure !== null ? gameState.tempPressure : gameState.pressure;
-                    
                     if (currentPressure >= 5) {
-                        tempEffect = (gameState.temperature - 20) * 0.03;    // Было 0.1
-                        pressureEffect = (currentPressure - 50) * 0.01;     // Было 0.05
+                        tempEffect = (gameState.temperature - 20) * 0.03;
+                        pressureEffect = (currentPressure - 50) * 0.01;
                     }
-                    
                     const heatingEffect = tempEffect + pressureEffect;
-                    
-                    // Cooling effect from outdoor temperature (reduced influence)
                     const currentOutdoorTemp = gameState.tempOutdoorTemp !== null ? gameState.tempOutdoorTemp : gameState.outdoorTemp;
-                    const coolingEffect = (currentOutdoorTemp - building.temp) * 0.02; // Было 0.05
-                    
-                    // Net temperature change
+                    const coolingEffect = (currentOutdoorTemp - building.temp) * 0.02;
                     let tempChange = heatingEffect + coolingEffect;
-                    
-                    // Clamp temperature to prevent negative values
                     building.temp = Math.max(0, building.temp + tempChange);
-                    
-                    // Check for failures
                     if (building.temp >= 40) {
                         if (!building.failed) {
                             building.failed = true;
                             building.failureType = 'overheat';
                             addLogEntry(`🔥 Авария от перегрева в ${getBuildingName(building)}! Температура: ${Math.round(building.temp)}°C`);
-                            
-                            // Play alarm sound for failure (will play even if game is paused)
                             playSound('alarm');
                         }
                     } else if (building.temp <= 5) {
@@ -1340,30 +949,22 @@
                             building.failed = true;
                             building.failureType = 'freeze';
                             addLogEntry(`❄️ Авария от переохлаждения в ${getBuildingName(building)}! Температура: ${Math.round(building.temp)}°C`);
-                            
-                            // Play alarm sound for failure (will play even if game is paused)
                             playSound('alarm');
                         }
                     }
-                    
-                    // Random pressure-related failures (less frequent)
                     if (currentPressure > 85 && Math.random() < 0.02 && !building.failed) {
                         building.failed = true;
-                        building.failureType = 'pressure'; // Special failure type for pressure-related issues
+                        building.failureType = 'pressure';
                         addLogEntry(`⚠️ Авария из-за высокого давления в ${getBuildingName(building)}!`);
-                        
-                        // Play alarm sound for pressure failure (will play even if game is paused)
                         playSound('alarm');
                     }
                 }
-                
                 updateBuildingStates();
                 updateUI();
                 saveGameState();
                 checkGameOver();
             }
         }
-
         function getBuildingName(building) {
             if (building === gameState.buildings.school) return 'школе';
             if (building === gameState.buildings.house) return 'жилом доме';
@@ -1371,25 +972,20 @@
             if (building === gameState.buildings.institution) return 'учреждении';
             return 'объекте';
         }
-
-        // Initialize the game after DOM is fully loaded
         document.addEventListener('DOMContentLoaded', init);
-        window.addEventListener('beforeunload', saveGameState);
     </script>
-    
     <script>
-    // Регистрация Service Worker для PWA
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(registration => {
-                    console.log('ServiceWorker registered with scope:', registration.scope);
-                })
-                .catch(error => {
-                    console.log('ServiceWorker registration failed:', error);
-                });
-        });
-    }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
