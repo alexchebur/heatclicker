@@ -229,12 +229,13 @@
         }
         
         .grid-cell {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.08); /* Запасной цвет если изображение не загрузится */
             border-radius: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: calc(7px + 0.2vh);
+            position: relative; /* Для псевдоэлементов */
         }
         
         .power-plant {
@@ -259,6 +260,7 @@
             font-size: min(2vw, 2vh, 12px); /* Адаптивный размер шрифта */
             font-weight: bold;
             border-radius: 3px;
+            position: relative;
         }
         
         .building.school { grid-column: 1 / 2; grid-row: 1 / 2; }
@@ -270,6 +272,123 @@
         .building.temp-cold { background: rgba(59, 130, 246, 0.8); }
         .building.temp-hot { background: rgba(245, 158, 11, 0.8); }
         .building.temp-failure { background: rgba(239, 68, 68, 0.8); }
+        
+        /* Фоновые изображения для зданий и ячеек */
+        .power-plant {
+            background-image: url('images/power-plant.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .building.school {
+            background-image: url('images/school.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .building.house {
+            background-image: url('images/house.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .building.office {
+            background-image: url('images/office.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .building.institution {
+            background-image: url('images/institution.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Фоновые изображения для пустых grid-cell (линии сетей) */
+        .grid-cell:nth-child(1) {
+            background-image: url('images/network-line-1.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .grid-cell:nth-child(2) {
+            background-image: url('images/network-line-2.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .grid-cell:nth-child(3) {
+            background-image: url('images/network-line-3.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .grid-cell:nth-child(4) {
+            background-image: url('images/network-line-4.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Убираем стандартный фон если есть изображение */
+        .power-plant[style*="background-image"],
+        .building[style*="background-image"],
+        .grid-cell[style*="background-image"] {
+            background-color: transparent !important;
+        }
+
+        /* Убираем стандартный цветной фон для зданий с изображениями */
+        .building.temp-normal,
+        .building.temp-cold,
+        .building.temp-hot,
+        .building.temp-failure {
+            background-color: transparent !important;
+        }
+
+        .power-plant {
+            background-color: transparent !important;
+        }
+
+        .grid-cell {
+            background-color: transparent !important;
+        }
+
+        /* Убедимся, что контент (иконки и текст) остается поверх фона */
+        .power-plant > *,
+        .building > *,
+        .grid-cell > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Добавим затемнение для всех ячеек с фоновыми изображениями */
+        .power-plant::before,
+        .building::before,
+        .grid-cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3); /* Легкое затемнение для лучшей читаемости */
+            z-index: 1;
+            border-radius: inherit;
+            pointer-events: none; /* Чтобы не мешало кликам */
+        }
+
+        /* Для линий сетей делаем затемнение слабее чтобы лучше видеть линии */
+        .grid-cell::before {
+            background: rgba(0, 0, 0, 0.2);
+        }
         
         .events-panel {
             background: rgba(0, 0, 0, 0.7);
@@ -417,11 +536,18 @@
             .log { height: 6vh; min-height: 30px; }
             .event-display { min-height: 8vh; }
             .btn { padding: 0.6vh 1.2vw; font-size: calc(var(--font-size-base) * 0.8); }
+            
+            /* Адаптация фоновых изображений для маленьких экранов */
+            .building,
+            .power-plant,
+            .grid-cell {
+                background-size: contain; /* Меняем на contain для лучшего отображения на маленьких экранах */
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Добавлен основной контейнер приложения -->
+    <!-- Основной контейнер приложения -->
     <div class="app-container">
         <div class="container">
             <div class="header">
@@ -1349,7 +1475,7 @@
                             building.failureType = 'overheat';
                             addLogEntry(`🔥 Авария от перегрева в ${getBuildingName(building)}! Температура: ${Math.round(building.temp)}°C`);
                             
-                            // Play alarm sound for failure (will play even if game is paused)
+                            // Play alarm sound for failure (will play даже если игра на паузе)
                             playSound('alarm');
                         }
                     } else if (building.temp <= 5) {
@@ -1358,7 +1484,7 @@
                             building.failureType = 'freeze';
                             addLogEntry(`❄️ Авария от переохлаждения в ${getBuildingName(building)}! Температура: ${Math.round(building.temp)}°C`);
                             
-                            // Play alarm sound for failure (will play even if game is paused)
+                            // Play alarm sound for failure (will play даже если игра на паузе)
                             playSound('alarm');
                         }
                     }
@@ -1369,7 +1495,7 @@
                         building.failureType = 'pressure'; // Special failure type for pressure-related issues
                         addLogEntry(`⚠️ Авария из-за высокого давления в ${getBuildingName(building)}!`);
                         
-                        // Play alarm sound for pressure failure (will play even if game is paused)
+                        // Play alarm sound for pressure failure (will play даже если игра на паузе)
                         playSound('alarm');
                     }
                 }
