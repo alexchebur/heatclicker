@@ -186,31 +186,10 @@
         
         .main-content {
             display: flex;
+            flex-direction: column;
             gap: var(--spacing-unit);
             flex: 1;
             min-height: 0; /* Важно для правильного расчета flex-размеров */
-        }
-        
-        @media (min-width: 601px) and (min-height: 601px) {
-            .main-content {
-                flex-direction: row;
-            }
-            
-            .game-field, .events-panel {
-                width: 50%;
-                height: 100%;
-            }
-        }
-        
-        @media (max-width: 600px) or (max-height: 600px) {
-            .main-content {
-                flex-direction: column;
-            }
-            
-            .game-field, .events-panel {
-                width: 100%;
-                min-height: 35vh;
-            }
         }
         
         /* Игровое поле с фиксированными пропорциями */
@@ -224,7 +203,6 @@
             grid-template-rows: repeat(3, 1fr);
             gap: 1%;
             position: relative;
-            /*aspect-ratio: 1/1; /* Квадратное поле */
             min-height: 0; /* Важно для правильного расчета grid */
         }
         
@@ -280,6 +258,8 @@
             display: flex;
             flex-direction: column;
             gap: calc(var(--spacing-unit) * 0.8);
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .events-title {
@@ -295,13 +275,13 @@
             padding: 1vh 1vw;
             min-height: 10vh;
             width: 100%;
-            max-width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             overflow: hidden;
+            box-sizing: border-box;
         }
         
         .event-title {
@@ -610,36 +590,34 @@
                 </div>
             </div>
             
-            <div class="main-content">
-                <!-- Панель событий ПЕРВОЙ - над игровым полем -->
-                <div class="events-panel">
-                    <div class="events-title">Случайные события</div>
-                    <div class="event-display" id="event-display">
-                        <div class="event-title" id="event-title">Ожидание событий...</div>
-                        <div class="event-effect" id="event-effect"></div>
-                        <div class="event-timer" id="event-timer"></div>
-                    </div>
+            <!-- Панель событий ПЕРВОЙ - над игровым полем -->
+            <div class="events-panel">
+                <div class="events-title">Случайные события</div>
+                <div class="event-display" id="event-display">
+                    <div class="event-title" id="event-title">Ожидание событий...</div>
+                    <div class="event-effect" id="event-effect"></div>
+                    <div class="event-timer" id="event-timer"></div>
                 </div>
-                
-                <!-- Игровое поле ВТОРЫМ - под панелью событий -->
-                <div class="game-field" id="game-field">
-                    <div class="power-plant">🏭</div>
-                    <div class="building school" id="school">
-                        <div class="icon">🏫</div>
-                        <div class="temp">20°</div>
-                    </div>
-                    <div class="building house" id="house">
-                        <div class="icon">🏠</div>
-                        <div class="temp">20°</div>
-                    </div>
-                    <div class="building office" id="office">
-                        <div class="icon">🏢</div>
-                        <div class="temp">20°</div>
-                    </div>
-                    <div class="building institution" id="institution">
-                        <div class="icon">🏥</div>
-                        <div class="temp">20°</div>
-                    </div>
+            </div>
+            
+            <!-- Игровое поле ВТОРЫМ - под панелью событий -->
+            <div class="game-field" id="game-field">
+                <div class="power-plant">🏭</div>
+                <div class="building school" id="school">
+                    <div class="icon">🏫</div>
+                    <div class="temp">20°</div>
+                </div>
+                <div class="building house" id="house">
+                    <div class="icon">🏠</div>
+                    <div class="temp">20°</div>
+                </div>
+                <div class="building office" id="office">
+                    <div class="icon">🏢</div>
+                    <div class="temp">20°</div>
+                </div>
+                <div class="building institution" id="institution">
+                    <div class="icon">🏥</div>
+                    <div class="temp">20°</div>
                 </div>
             </div>
             
