@@ -1770,43 +1770,47 @@
 
         function gameLoop() {
             if (gameState.isPaused) return;
-            
+    
             const now = Date.now();
-            // check event ending every second
+    
+            // Check for random events
+            checkForRandomEvent();
+    
+            // Check for achievements
+            checkAchievements();
+    
+            // Update weather and day counter every 10 seconds
+            updateWeatherAndDay();
+    
+            // Check event ending every second
             if (gameState.currentEvent && now - gameState.lastEventCheck >= 1000) {
                 const elapsed = now - gameState.currentEvent.startTime;
                 if (elapsed >= 60000) {
                     safeEndCurrentEvent();
                 }
+                gameState.lastEventCheck = now;
             }
 
-            
             const timeDiff = now - gameState.lastTick;
-            
-            // Check for random events
-            checkForRandomEvent();
-            
-            // Update weather and day counter every 10 seconds
-            updateWeatherAndDay();
-            
+    
             // Handle ongoing event effects
             let currentTickInterval = gameState.tempMoneyTickInterval;
             let baseMoneyPerTick = gameState.moneyPerTick * gameState.tempMoneyMultiplier;
-            
+    
             // Apply temperature bonus to money per tick
             const temperatureBonus = getTemperatureBonus();
             let currentMoneyPerTick = baseMoneyPerTick * temperatureBonus;
-            
+    
             if (timeDiff >= currentTickInterval) {
                 gameState.lastTick = now;
-                
+        
                 // Earn money only if not all buildings are failed
                 if (!areAllBuildingsFailed()) {
                     gameState.money += currentMoneyPerTick;
                     // Update stats
                     gameState.stats.totalMoneyEarned += currentMoneyPerTick;
                 }
-                
+        
                 // Update building temperatures with new smoother formulas
                 for (const [key, building] of Object.entries(gameState.buildings)) {
                     if (building.failed) {
@@ -1825,38 +1829,38 @@
                         }
                         continue;
                     }
-                    
+            
                     // Calculate heating effect with smoother coefficients
                     // Only apply heating effect if pressure is above minimum (5%)
                     let tempEffect = 0;
                     let pressureEffect = 0;
-                    
+            
                     const currentPressure = gameState.tempPressure !== null ? gameState.tempPressure : gameState.pressure;
-                    
+            
                     if (currentPressure >= 5) {
                         tempEffect = (gameState.temperature - 20) * 0.015;    // Было 0.1
                         pressureEffect = (currentPressure - 50) * 0.01;     // Было 0.05
                     }
-                    
+            
                     const heatingEffect = tempEffect + pressureEffect;
-                    
+            
                     // Cooling effect from outdoor temperature (reduced influence)
                     const currentOutdoorTemp = gameState.tempOutdoorTemp !== null ? gameState.tempOutdoorTemp : gameState.outdoorTemp;
                     const coolingEffect = (currentOutdoorTemp - building.temp) * 0.02; // Было 0.05
-                    
+            
                     // Net temperature change
                     let tempChange = heatingEffect + coolingEffect;
-                    
+            
                     // Clamp temperature to prevent negative values
                     building.temp = Math.max(0, building.temp + tempChange);
-                    
+            
                     // Check for failures
                     if (building.temp >= 40) {
                         if (!building.failed) {
                             building.failed = true;
                             building.failureType = 'overheat';
                             addLogEntry(`🔥 Авария от перегрева в ${getBuildingName(building)}! Температура: ${Math.round(building.temp)}°C`);
-                            
+                    
                             // Play alarm sound for failure (will play даже если игра на паузе)
                             playSound('alarm');
                         }
@@ -1865,23 +1869,23 @@
                             building.failed = true;
                             building.failureType = 'freeze';
                             addLogEntry(`❄️ Авария от переохлаждения в ${getBuildingName(building)}! Температура: ${Math.round(building.temp)}°C`);
-                            
+                    
                             // Play alarm sound for failure (will play даже если игра на паузе)
                             playSound('alarm');
                         }
                     }
-                    
+            
                     // Random pressure-related failures (less frequent)
                     if (currentPressure > 85 && Math.random() < 0.02 && !building.failed) {
                         building.failed = true;
                         building.failureType = 'pressure'; // Special failure type for pressure-related issues
                         addLogEntry(`⚠️ Авария из-за высокого давления в ${getBuildingName(building)}!`);
-                        
+                
                         // Play alarm sound for pressure failure (will play даже если игра на паузе)
                         playSound('alarm');
                     }
                 }
-                
+        
                 updateBuildingStates();
                 updateUI();
                 saveGameState();
