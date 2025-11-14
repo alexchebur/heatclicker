@@ -1768,6 +1768,78 @@
             return 1 + temperaturePercentage;
         }
 
+        // Achievement system
+        const achievements = [
+            {
+                id: 'firstThousand',
+                name: 'Первая Тысяча!',
+                description: 'Начало большого пути!',
+                icon: '💰',
+                condition: (state) => state.money >= 1000 && !state.achievements.firstThousand,
+                onUnlock: (state) => { state.achievements.firstThousand = true; }
+            },
+            {
+                id: 'firstMillion',
+                name: 'Первый Миллион!',
+                description: 'Инвестируем в станцию с умом!',
+                icon: '💵',
+                condition: (state) => state.money >= 1000000 && !state.achievements.firstMillion,
+                onUnlock: (state) => { state.achievements.firstMillion = true; }
+            },
+            {
+                id: 'firstYear',
+                name: 'Первый Год!',
+                description: 'Доказали надежность теплоснабжения!',
+                icon: '📅',
+                condition: (state) => state.dayCounter >= 365 && !state.achievements.firstYear,
+                onUnlock: (state) => { state.achievements.firstYear = true; }
+            }
+            // Добавьте сюда другие достижения по мере необходимости
+        ];
+
+        // Function to show achievement
+        function showAchievement(achievement) {
+            const panel = document.getElementById('achievement-panel');
+            const icon = document.getElementById('achievement-icon');
+            const title = document.getElementById('achievement-title');
+            const description = document.getElementById('achievement-description');
+            
+            if (!panel || !icon || !title || !description) return;
+            
+            // Set achievement content
+            icon.textContent = achievement.icon;
+            title.textContent = achievement.name;
+            description.textContent = achievement.description;
+            
+            // Show panel with animation
+            panel.classList.add('active');
+            
+            // Play powerup sound
+            playSound('powerup');
+            
+            // Hide panel after 2 seconds
+            setTimeout(() => {
+                panel.classList.remove('active');
+            }, 2000);
+            
+            // Log achievement
+            addLogEntry(`🏆 Получено достижение: ${achievement.name} - ${achievement.description}`);
+        }
+
+        // Function to check achievements
+        function checkAchievements() {
+            for (const achievement of achievements) {
+                if (achievement.condition(gameState)) {
+                    achievement.onUnlock(gameState);
+                    showAchievement(achievement);
+                    saveGameState();
+                }
+            }
+        }
+
+        // ... существующий код до gameLoop ...
+
+        
         function gameLoop() {
             if (gameState.isPaused) return;
     
