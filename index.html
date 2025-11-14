@@ -83,6 +83,45 @@
             z-index: 10;
         }
         
+        /* Спрайт инженера */
+        .engineer-sprite {
+            position: absolute;
+            left: 5%;
+            bottom: -10px; /* На 10px ниже нижнего края экрана */
+            width: 200px;
+            height: auto;
+            z-index: 5; /* Между фоном и текстом меню */
+            animation: floatAnimation 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes floatAnimation {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-5px); /* Движение вверх на 5px */
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        /* Адаптация спрайта для маленьких экранов */
+        @media (max-width: 767px) {
+            .engineer-sprite {
+                width: 150px;
+                left: 3%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .engineer-sprite {
+                width: 120px;
+                left: 2%;
+            }
+        }
+        
         /* Масштабирование контейнера под разные экраны */
         @media (max-aspect-ratio: 720/1280) {
             .app-container {
@@ -327,6 +366,9 @@
 <body>
     <!-- Основной контейнер приложения -->
     <div class="app-container">
+        <!-- Спрайт инженера -->
+        <img src="images/engineer.png" alt="Инженер" class="engineer-sprite" id="engineer-sprite">
+        
         <!-- Экран загрузки -->
         <div class="loading-screen" id="loading-screen">
             <div class="tap-to-start">Кликните или коснитесь экрана</div>
@@ -456,6 +498,7 @@
             const aboutBtn = document.getElementById('about-btn');
             const howToPlayPanel = document.getElementById('how-to-play-panel');
             const aboutPanel = document.getElementById('about-panel');
+            const engineerSprite = document.getElementById('engineer-sprite');
             
             // Звуковая система
             const themeMusic = new Audio('sounds/theme.mp3');
@@ -533,6 +576,12 @@
             
             aboutPanel.addEventListener('click', function() {
                 aboutPanel.classList.remove('active');
+            });
+            
+            // Обработка ошибки загрузки спрайта
+            engineerSprite.addEventListener('error', function() {
+                console.log('Спрайт инженера не найден, скрываем элемент');
+                engineerSprite.style.display = 'none';
             });
             
             // Предварительная загрузка звука при загрузке страницы
