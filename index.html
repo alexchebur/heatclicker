@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#f37321">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ТЭЦ Кликер">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <title>ТЭЦ Кликер - Меню</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Основной контейнер с фиксированными пропорциями 720x1280 */
+        body {
+            background: #000;
+            color: white;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        
+        /* Контейнер приложения с фиксированными пропорциями */
+        .app-container {
+            width: 720px;
+            height: 1280px;
+            max-width: 100vw;
+            max-height: 100vh;
+            aspect-ratio: 720/1280;
+            display: flex;
+            flex-direction: column;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            transform-origin: center center;
+        }
+
+        /* Фоновое изображение */
+        .app-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('images/bg.png');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        /* Эффект затемнения */
+        .app-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2;
+        }
+
+        .app-container > * {
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Масштабирование контейнера под разные экраны */
+        @media (max-aspect-ratio: 720/1280) {
+            .app-container {
+                width: 100vw;
+                height: calc(100vw * 1280 / 720);
+            }
+        }
+        
+        @media (min-aspect-ratio: 720/1280) {
+            .app-container {
+                width: calc(100vh * 720 / 1280);
+                height: 100vh;
+            }
+        }
+        
+        /* Безопасные зоны для iPhone */
+        @supports (padding: max(0px)) {
+            .app-container {
+                padding-top: max(0px, env(safe-area-inset-top));
+                padding-bottom: max(0px, env(safe-area-inset-bottom));
+                padding-left: max(0px, env(safe-area-inset-left));
+                padding-right: max(0px, env(safe-area-inset-right));
+            }
+        }
+        
+        :root {
+            --spacing-unit: 8px;
+            --font-size-base: 16px;
+            --padding-base: 10px;
+        }
+        
+        @media (max-height: 600px) {
+            :root {
+                --spacing-unit: 6px;
+                --font-size-base: 14px;
+                --padding-base: 8px;
+            }
+        }
+        
+        @media (max-height: 500px) {
+            :root {
+                --spacing-unit: 5px;
+                --font-size-base: 12px;
+                --padding-base: 7px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            :root {
+                --spacing-unit: 4px;
+                --font-size-base: 10px;
+                --padding-base: 6px;
+            }
+        }
+        
+        /* Экран загрузки */
+        .loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .loading-screen.hidden {
+            display: none;
+        }
+        
+        .tap-to-start {
+            font-size: calc(var(--font-size-base) * 1.5);
+            color: #fbbf24;
+            text-align: center;
+            animation: pulse 2s infinite;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        /* Основное меню */
+        .menu-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: calc(var(--spacing-unit) * 3);
+            padding: 20px;
+        }
+        
+        .game-title {
+            font-size: calc(var(--font-size-base) * 2.5);
+            font-weight: bold;
+            color: #fbbf24;
+            text-align: center;
+            margin-bottom: calc(var(--spacing-unit) * 2);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--spacing-unit) * 2);
+            width: 80%;
+            max-width: 400px;
+        }
+        
+        .menu-btn {
+            background: linear-gradient(45deg, #f37321, #e55a17);
+            border: none;
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: calc(var(--font-size-base) * 1.3);
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+        }
+        
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        
+        .menu-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        /* Панели информации */
+        .info-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            height: 80%;
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #fbbf24;
+            border-radius: 15px;
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+            overflow-y: auto;
+        }
+        
+        .info-panel.active {
+            display: flex;
+        }
+        
+        .info-title {
+            font-size: calc(var(--font-size-base) * 1.8);
+            font-weight: bold;
+            color: #fbbf24;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+        
+        .info-content {
+            flex: 1;
+            font-size: calc(var(--font-size-base) * 1);
+            line-height: 1.6;
+            color: white;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .info-section {
+            margin-bottom: 20px;
+        }
+        
+        .info-section h3 {
+            color: #fbbf24;
+            margin-bottom: 10px;
+            font-size: calc(var(--font-size-base) * 1.2);
+        }
+        
+        .info-section ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .info-section li {
+            margin-bottom: 8px;
+        }
+        
+        /* Адаптация для маленьких экранов */
+        @media (max-height: 600px) {
+            .menu-container {
+                gap: calc(var(--spacing-unit) * 2);
+            }
+            
+            .game-title {
+                font-size: calc(var(--font-size-base) * 2);
+                margin-bottom: calc(var(--spacing-unit) * 1);
+            }
+            
+            .menu-btn {
+                padding: 12px 16px;
+                font-size: calc(var(--font-size-base) * 1.1);
+            }
+            
+            .info-panel {
+                height: 85%;
+                padding: 15px;
+            }
+            
+            .info-title {
+                font-size: calc(var(--font-size-base) * 1.5);
+                margin-bottom: 15px;
+            }
+            
+            .info-content {
+                font-size: calc(var(--font-size-base) * 0.9);
+            }
+        }
+        
+        /* Для мобильных устройств */
+        @media (max-width: 767px) {
+            .menu-buttons {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Основной контейнер приложения -->
+    <div class="app-container">
+        <!-- Экран загрузки -->
+        <div class="loading-screen" id="loading-screen">
+            <div class="tap-to-start">Кликните или коснитесь экрана</div>
+        </div>
+        
+        <!-- Основное меню -->
+        <div class="menu-container" id="menu-container" style="display: none;">
+            <h1 class="game-title">🏭 ТЭЦ Кликер</h1>
+            <div class="menu-buttons">
+                <button class="menu-btn" id="start-btn">НАЧАТЬ ИГРУ</button>
+                <button class="menu-btn" id="how-to-play-btn">КАК ИГРАТЬ</button>
+                <button class="menu-btn" id="about-btn">О ПРИЛОЖЕНИИ</button>
+            </div>
+        </div>
+        
+        <!-- Панель "Как играть" -->
+        <div class="info-panel" id="how-to-play-panel">
+            <h2 class="info-title">🎮 Как играть</h2>
+            <div class="info-content">
+                <div class="info-section">
+                    <h3>📖 О чем игра</h3>
+                    <p>Вы - управляющий теплоэлектроцентралью (ТЭЦ)! Ваша задача - обеспечивать теплом городские объекты и зарабатывать деньги для развития станции.</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>🎯 Основная цель</h3>
+                    <p>Поддерживайте температуру в зданиях в безопасном диапазоне (15-30°C), зарабатывайте деньги и развивайте свою ТЭЦ!</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>⚙️ Управление параметрами</h3>
+                    <ul>
+                        <li>🎚️ <strong>Давление</strong> - регулируйте от 5% до 100%</li>
+                        <li>🌡️ <strong>Температура</strong> - регулируйте от 1°C до 150°C</li>
+                        <li>❄️ <strong>Погода</strong> - меняется случайно от -30°C до +5°C</li>
+                    </ul>
+                </div>
+                
+                <div class="info-section">
+                    <h3>🏗️ Объекты города</h3>
+                    <ul>
+                        <li>🏫 <strong>Школа</strong> - требует стабильного тепла</li>
+                        <li>🏠 <strong>Жилой дом</strong> - чувствителен к перепадам</li>
+                        <li>🏢 <strong>Офис</strong> - устойчив к изменениям</li>
+                        <li>🏥 <strong>Учреждение</strong> - критически важен</li>
+                    </ul>
+                </div>
+                
+                <div class="info-section">
+                    <h3>🔄 Действия</h3>
+                    <ul>
+                        <li>🔧 <strong>Модернизация</strong> - увеличивает доход и мощность</li>
+                        <li>💰 <strong>Мелкие улучшения</strong> - мгновенная прибыль</li>
+                        <li>🛠️ <strong>Аварийный ремонт</strong> - восстановление объектов</li>
+                    </ul>
+                </div>
+                
+                <div class="info-section">
+                    <h3>⚠️ Опасности</h3>
+                    <ul>
+                        <li>🔥 <strong>Перегрев</strong> - при температуре выше 40°C</li>
+                        <li>❄️ <strong>Замерзание</strong> - при температуре ниже 5°C</li>
+                        <li>💥 <strong>Высокое давление</strong> - может вызвать аварию</li>
+                    </ul>
+                </div>
+                
+                <div class="info-section">
+                    <h3>🎲 События</h3>
+                    <p>Случайные события от Совета директоров могут как помочь, так и усложнить вашу задачу!</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Панель "О приложении" -->
+        <div class="info-panel" id="about-panel">
+            <h2 class="info-title">ℹ️ О приложении</h2>
+            <div class="info-content">
+                <div class="info-section">
+                    <h3>👨‍💻 Автор</h3>
+                    <p>Разработано с ❤️ для любителей инкрементальных игр и симуляторов управления</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>📅 Дата создания</h3>
+                    <p>2024 год</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>🎮 Жанр</h3>
+                    <p>Инкрементальная игра / Симулятор управления / Кликер</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>🛠️ Технологии</h3>
+                    <ul>
+                        <li>HTML5, CSS3, JavaScript</li>
+                        <li>Адаптивный дизайн для мобильных устройств</li>
+                        <li>PWA-готовность</li>
+                    </ul>
+                </div>
+                
+                <div class="info-section">
+                    <h3>🎵 Особенности</h3>
+                    <ul>
+                        <li>Реалистичная физика теплообмена</li>
+                        <li>Динамическая система событий</li>
+                        <li>Система достижений</li>
+                        <li>Атмосферное звуковое сопровождение</li>
+                    </ul>
+                </div>
+                
+                <div class="info-section">
+                    <h3>🚀 Планы развития</h3>
+                    <p>В будущем планируется добавление новых зданий, событий и возможностей для развития ТЭЦ!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация при загрузке DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы DOM
+            const loadingScreen = document.getElementById('loading-screen');
+            const menuContainer = document.getElementById('menu-container');
+            const startBtn = document.getElementById('start-btn');
+            const howToPlayBtn = document.getElementById('how-to-play-btn');
+            const aboutBtn = document.getElementById('about-btn');
+            const howToPlayPanel = document.getElementById('how-to-play-panel');
+            const aboutPanel = document.getElementById('about-panel');
+            
+            // Звуковая система
+            const themeMusic = new Audio('sounds/theme.mp3');
+            themeMusic.loop = true;
+            themeMusic.volume = 0.7;
+            
+            // Флаг инициализации звука
+            let soundInitialized = false;
+            
+            // Функция инициализации звука
+            function initSound() {
+                if (soundInitialized) return;
+                
+                try {
+                    // Попытка воспроизведения для разблокировки аудио в браузере
+                    themeMusic.play().then(() => {
+                        themeMusic.pause();
+                        soundInitialized = true;
+                        console.log('Аудио система инициализирована');
+                    }).catch(e => {
+                        console.log('Автовоспроизведение заблокировано, требуется взаимодействие');
+                    });
+                } catch (e) {
+                    console.warn('Ошибка инициализации звука:', e);
+                }
+            }
+            
+            // Функция запуска музыки
+            function playThemeMusic() {
+                if (!soundInitialized) return;
+                
+                try {
+                    themeMusic.currentTime = 0;
+                    themeMusic.play().catch(e => {
+                        console.log('Воспроизведение музыки заблокировано:', e);
+                    });
+                } catch (e) {
+                    console.warn('Ошибка воспроизведения музыки:', e);
+                }
+            }
+            
+            // Обработчик клика по экрану загрузки
+            loadingScreen.addEventListener('click', function() {
+                // Инициализируем звук при первом взаимодействии
+                initSound();
+                
+                // Показываем меню и скрываем экран загрузки
+                loadingScreen.classList.add('hidden');
+                menuContainer.style.display = 'flex';
+                
+                // Запускаем музыку
+                setTimeout(playThemeMusic, 500);
+            });
+            
+            // Обработчики кнопок меню
+            startBtn.addEventListener('click', function() {
+                // Останавливаем музыку при переходе в игру
+                themeMusic.pause();
+                // Переход к игре
+                window.location.href = 'game.html';
+            });
+            
+            howToPlayBtn.addEventListener('click', function() {
+                howToPlayPanel.classList.add('active');
+            });
+            
+            aboutBtn.addEventListener('click', function() {
+                aboutPanel.classList.add('active');
+            });
+            
+            // Закрытие панелей по клику
+            howToPlayPanel.addEventListener('click', function() {
+                howToPlayPanel.classList.remove('active');
+            });
+            
+            aboutPanel.addEventListener('click', function() {
+                aboutPanel.classList.remove('active');
+            });
+            
+            // Предварительная загрузка звука при загрузке страницы
+            initSound();
+        });
+
+        // Регистрация Service Worker для PWA (закомментировано до готовности)
+        /*
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
+        */
+    </script>
+</body>
+</html>
