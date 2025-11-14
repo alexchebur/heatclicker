@@ -1637,7 +1637,7 @@
                     const currentPressure = gameState.tempPressure !== null ? gameState.tempPressure : gameState.pressure;
                     
                     if (currentPressure >= 5) {
-                        tempEffect = (gameState.temperature - 20) * 0.03;    // Было 0.1
+                        tempEffect = (gameState.temperature - 20) * 0.015;    // Было 0.1
                         pressureEffect = (currentPressure - 50) * 0.01;     // Было 0.05
                     }
                     
