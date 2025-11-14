@@ -48,6 +48,31 @@
             position: relative;
             transform-origin: center center;
         }
+
+        /* Эффект горизонтальных полосок */
+        .app-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                180deg,
+                transparent 0px,
+                transparent 2px,
+                rgba(255, 255, 255, 0.07) 2px,
+                rgba(255, 255, 255, 0.07) 4px
+            );
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0.6;
+        }
+
+        .app-container > * {
+            position: relative;
+            z-index: 10;
+        }
         
         /* Масштабирование контейнера под разные экраны */
         @media (max-aspect-ratio: 720/1280) {
@@ -82,25 +107,25 @@
         
         @media (max-height: 600px) {
             :root {
-                --spacing-unit: 4px;
+                --spacing-unit: 6px;
                 --font-size-base: 14px;
-                --padding-base: 6px;
+                --padding-base: 8px;
             }
         }
         
         @media (max-height: 500px) {
             :root {
-                --spacing-unit: 3px;
+                --spacing-unit: 5px;
                 --font-size-base: 12px;
-                --padding-base: 5px;
+                --padding-base: 7px;
             }
         }
         
         @media (max-width: 400px) {
             :root {
-                --spacing-unit: 2px;
+                --spacing-unit: 4px;
                 --font-size-base: 10px;
-                --padding-base: 4px;
+                --padding-base: 6px;
             }
         }
         
@@ -116,7 +141,8 @@
         .header {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 8px;
-            padding: calc(var(--padding-base) * 1.5);
+            padding: calc(var(--padding-base) * 1.2);
+            padding-bottom: calc(var(--padding-base) * 1.5);
             display: flex;
             flex-direction: column;
             gap: calc(var(--spacing-unit) * 0.7);
@@ -127,6 +153,7 @@
             justify-content: space-between;
             align-items: center;
             font-size: calc(var(--font-size-base) * 1.1);
+            font-weight: 500;
         }
         
         .power-display {
@@ -140,7 +167,7 @@
             border-radius: 5px;
             width: calc(25px + 0.5vh);
             height: calc(25px + 0.5vh);
-            font-size: calc(var(--font-size-base) * 1.5);
+            font-size: calc(var(--font-size-base) * 1.2);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -151,37 +178,44 @@
         .sliders {
             display: flex;
             flex-direction: column;
-            gap: calc(var(--spacing-unit) * 1.2);
+            gap: calc(var(--spacing-unit) * 1.5);
+            padding-bottom: calc(var(--padding-base) * 0.5);
         }
         
         .slider-group {
             display: flex;
             flex-direction: column;
-            gap: calc(var(--spacing-unit) * 0.3);
+            gap: calc(var(--spacing-unit) * 0.5);
+        }
+
+        .slider-group:last-child {
+            margin-bottom: calc(var(--spacing-unit) * 1);
         }
         
         .slider-label {
             display: flex;
             justify-content: space-between;
-            font-size: calc(var(--font-size-base) * 0.8);
+            font-size: calc(var(--font-size-base) * 0.9);
         }
         
         .slider {
             width: 100%;
-            height: calc(4px + 0.1vh);
+            height: calc(6px + 0.1vh);
             -webkit-appearance: none;
             background: #374151;
-            border-radius: 2px;
+            border-radius: 3px;
             outline: none;
         }
         
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: calc(14px + 0.2vh);
-            height: calc(14px + 0.2vh);
+            width: calc(18px + 0.2vh);
+            height: calc(18px + 0.2vh);
             background: #3b82f6;
             border-radius: 50%;
             cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         
         .main-content {
@@ -189,31 +223,31 @@
             flex-direction: column;
             gap: var(--spacing-unit);
             flex: 1;
-            min-height: 0; /* Важно для правильного расчета flex-размеров */
+            min-height: 0;
         }
         
         /* Игровое поле с фиксированными пропорциями */
         .game-field {
             background: rgba(0, 0, 0, 0.6);
             border-radius: 8px;
-            padding: 1%;
+            padding: 1.5%;
             flex: 2;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
-            gap: 1%;
+            gap: 1.5%;
             position: relative;
-            min-height: 0; /* Важно для правильного расчета grid */
+            min-height: 0;
         }
         
         .grid-cell {
-            background: rgba(255, 255, 255, 0.08); /* Запасной цвет если изображение не загрузится */
-            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: calc(7px + 0.2vh);
-            position: relative; /* Для псевдоэлементов */
+            font-size: calc(9px + 0.2vh);
+            position: relative;
         }
         
         .power-plant {
@@ -223,9 +257,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: min(6vw, 6vh, 45px); /* Адаптивный размер шрифта */
+            font-size: min(7vw, 7vh, 50px);
             font-weight: bold;
-            border-radius: 4px;
+            border-radius: 5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
         
         .building {
@@ -233,11 +268,11 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0.5vh 0.5vw;
+            padding: 1vh 1vw;
             text-align: center;
-            font-size: min(2vw, 2vh, 12px); /* Адаптивный размер шрифта */
+            font-size: min(2.5vw, 2.5vh, 14px);
             font-weight: bold;
-            border-radius: 3px;
+            border-radius: 4px;
             position: relative;
         }
         
@@ -254,26 +289,27 @@
         .events-panel {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 8px;
-            padding: 0.9vh 1vw;
+            padding: 1.2vh 1.2vw;
             display: flex;
             flex-direction: column;
-            gap: calc(var(--spacing-unit) * 0.8);
+            gap: calc(var(--spacing-unit) * 1);
             width: 100%;
             box-sizing: border-box;
         }
         
         .events-title {
-            font-size: calc(var(--font-size-base) * 1);
+            font-size: calc(var(--font-size-base) * 1.2);
             font-weight: bold;
             text-align: center;
-            margin-bottom: calc(var(--spacing-unit) * 0.8);
+            margin-bottom: calc(var(--spacing-unit) * 1);
+            color: #fbbf24;
         }
         
         .event-display {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 6px;
-            padding: 1vh 1vw;
-            min-height: 10vh;
+            padding: 1.5vh 1.5vw;
+            min-height: 12vh;
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -285,29 +321,30 @@
         }
         
         .event-title {
-            font-size: calc(var(--font-size-base) * 0.9);
-            margin-bottom: calc(var(--spacing-unit) * 0.5);
+            font-size: calc(var(--font-size-base) * 1);
+            margin-bottom: calc(var(--spacing-unit) * 0.7);
             color: #fbbf24;
             width: 100%;
             word-wrap: break-word;
             word-break: break-word;
             hyphens: auto;
+            font-weight: 600;
         }
         
         .event-effect {
-            font-size: calc(var(--font-size-base) * 0.75);
+            font-size: calc(var(--font-size-base) * 0.85);
             color: #93c5fd;
-            margin-bottom: calc(var(--spacing-unit) * 0.7);
+            margin-bottom: calc(var(--spacing-unit) * 0.8);
             width: 100%;
             max-width: 100%;
             word-wrap: break-word;
             word-break: break-word;
             hyphens: auto;
-            line-height: 1.2;
+            line-height: 1.3;
         }
         
         .event-timer {
-            font-size: calc(var(--font-size-base) * 0.75);
+            font-size: calc(var(--font-size-base) * 0.85);
             color: #ef4444;
             font-weight: bold;
             width: 100%;
@@ -317,40 +354,47 @@
         .controls {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 8px;
-            padding: calc(var(--padding-base) * 1.2) calc(var(--padding-base) * 0.8);
+            padding: calc(var(--padding-base) * 1.5) calc(var(--padding-base) * 1);
             display: flex;
-            gap: calc(var(--spacing-unit) * 1.3);
+            gap: calc(var(--spacing-unit) * 1.5);
             flex-direction: column;
         }
         
         .money-display {
-            font-size: calc(var(--font-size-base) * 1.2);
-            font-weight: bold;
+            font-size: calc(var(--font-size-base) * 1.8);
+            font-weight: 800;
             text-align: center;
             color: #fbbf24;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
         
         .buttons {
             display: flex;
-            gap: calc(var(--spacing-unit) * 0.6);
+            gap: calc(var(--spacing-unit) * 0.8);
             flex-wrap: wrap;
         }
         
         .btn {
             flex: 1;
             min-width: calc(30% - var(--spacing-unit));
-            padding: 0.8vh 1.5vw;
+            padding: 1.2vh 2vw;
             border: none;
-            border-radius: 5px;
-            font-size: calc(var(--font-size-base) * 0.9);
-            font-weight: bold;
+            border-radius: 6px;
+            font-size: calc(var(--font-size-base) * 1);
+            font-weight: 700;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: calc(var(--spacing-unit) * 0.2);
+            gap: calc(var(--spacing-unit) * 0.1);
             color: white;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+            line-height: 1.1;
+        }
+
+        .btn br {
+            line-height: 0.9;
         }
         
         .upgrade-btn {
@@ -371,39 +415,38 @@
         .log-section {
             display: flex;
             flex-direction: column;
-            gap: calc(var(--spacing-unit) * 0.5);
+            gap: calc(var(--spacing-unit) * 0.7);
         }
 
         .log-title {
-            font-size: calc(var(--font-size-base) * 0.9);
+            font-size: calc(var(--font-size-base) * 1.1);
             font-weight: bold;
             text-align: center;
             color: #fbbf24;
-            margin-bottom: calc(var(--spacing-unit) * 0.3);
+            margin-bottom: calc(var(--spacing-unit) * 0.5);
         }
 
-        /* Обновлённые стили для самого лога (можно оставить как есть) */
         .log {
             background: rgba(0, 0, 0, 0.8);
-            border-radius: 5px;
-            padding: 0.5vh 0.8vw;
-            height: 8vh;
-            min-height: 40px;
-            max-height: 100px;
+            border-radius: 6px;
+            padding: 0.8vh 1vw;
+            height: 10vh;
+            min-height: 45px;
+            max-height: 120px;
             overflow-y: auto;
-            font-size: calc(var(--font-size-base) * 0.7);
-            line-height: 1.2;
+            font-size: calc(var(--font-size-base) * 0.85);
+            line-height: 1.4;
         }
         
         .log-entry {
-            margin-bottom: calc(var(--spacing-unit) * 0.2);
-            padding-bottom: calc(var(--spacing-unit) * 0.2);
+            margin-bottom: calc(var(--spacing-unit) * 0.3);
+            padding-bottom: calc(var(--spacing-unit) * 0.3);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .icon {
-            font-size: min(5vw, 5vh, 40px); /* Адаптивный размер иконок */
-            margin-bottom: calc(var(--spacing-unit) * 0.1);
+            font-size: min(6vw, 6vh, 45px);
+            margin-bottom: calc(var(--spacing-unit) * 0.2);
         }
         
         /* Окно статистики */
@@ -413,7 +456,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             display: none;
             flex-direction: column;
             justify-content: center;
@@ -429,7 +472,7 @@
         .stats-container {
             background: linear-gradient(135deg, #1f2937, #374151);
             border-radius: 15px;
-            padding: 25px;
+            padding: 30px;
             max-width: 90%;
             max-height: 80%;
             overflow-y: auto;
@@ -439,53 +482,53 @@
         }
         
         .stats-title {
-            font-size: calc(var(--font-size-base) * 2);
+            font-size: calc(var(--font-size-base) * 2.2);
             font-weight: bold;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             color: #fbbf24;
         }
         
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 18px;
+            margin-bottom: 30px;
         }
         
         .stat-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 12px;
+            padding: 15px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .stat-value {
-            font-size: calc(var(--font-size-base) * 1.8);
+            font-size: calc(var(--font-size-base) * 2);
             font-weight: bold;
             color: #4ade80;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
         
         .stat-label {
-            font-size: calc(var(--font-size-base) * 0.9);
+            font-size: calc(var(--font-size-base) * 1);
             color: #d1d5db;
             text-align: center;
         }
         
         .close-stats-btn {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 20px;
+            right: 20px;
             background: #ef4444;
             border: none;
             border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            font-size: 18px;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -508,16 +551,17 @@
             background: linear-gradient(45deg, #10b981, #059669);
             border: none;
             border-radius: 10px;
-            padding: 15px 30px;
+            padding: 18px 35px;
             font-size: calc(var(--font-size-base) * 1.6);
             font-weight: bold;
             cursor: pointer;
             color: white;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             transition: transform 0.2s, background 0.3s;
             margin: 0 auto;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
         
         .restart-game-btn:hover {
@@ -526,38 +570,52 @@
         }
         
         .game-over-message {
-            font-size: calc(var(--font-size-base) * 1.5);
+            font-size: calc(var(--font-size-base) * 1.8);
             color: #ef4444;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         
         /* Адаптация для очень маленьких экранов */
         @media (max-height: 600px) {
             .header, .controls {
-                padding: calc(var(--padding-base) * 0.5);
+                padding: calc(var(--padding-base) * 0.8);
             }
-            .log { height: 6vh; min-height: 30px; }
-            .event-display { min-height: 8vh; }
-            .btn { padding: 0.6vh 1.2vw; font-size: calc(var(--font-size-base) * 0.8); }
+            .log { height: 8vh; min-height: 35px; }
+            .event-display { min-height: 10vh; }
+            .btn { padding: 1vh 1.5vw; font-size: calc(var(--font-size-base) * 0.9); }
             
             .stats-container {
-                padding: 15px;
+                padding: 20px;
             }
             
             .stats-title {
-                font-size: calc(var(--font-size-base) * 1.5);
-                margin-bottom: 15px;
+                font-size: calc(var(--font-size-base) * 1.8);
+                margin-bottom: 20px;
             }
             
             .stat-value {
-                font-size: calc(var(--font-size-base) * 1.3);
+                font-size: calc(var(--font-size-base) * 1.6);
             }
             
             .restart-game-btn {
-                padding: 10px 20px;
-                font-size: calc(var(--font-size-base) * 1.1);
+                padding: 15px 25px;
+                font-size: calc(var(--font-size-base) * 1.3);
+            }
+        }
+
+        /* Для мобильных устройств - более тонкие полосы */
+        @media (max-width: 767px) {
+            .app-container::before {
+                background: repeating-linear-gradient(
+                    180deg,
+                    transparent 0px,
+                    transparent 1px,
+                    rgba(255, 255, 255, 0.05) 1px,
+                    rgba(255, 255, 255, 0.05) 3px
+                );
             }
         }
     </style>
