@@ -739,6 +739,8 @@
             // Event system
             lastEventCheck: Date.now(),
             currentEvent: null,
+            eventQueue: [], // Очередь событий на будущее
+            isEventEnding: false, // Флаг завершения события
             // Temporary modifiers
             tempOutdoorTemp: null,
             tempPressure: null,
@@ -1323,6 +1325,35 @@
             }
         }
 
+        // Новая функция для безопасного завершения событий
+        function safeEndCurrentEvent() {
+            if (gameState.isEventEnding || !gameState.currentEvent) return;
+    
+            gameState.isEventEnding = true;
+    
+            try {
+                const event = events.find(e => e.title === gameState.currentEvent.title);
+                if (event && event.type === "ongoing" && event.revert) {
+                    event.revert();
+                }
+        
+                gameState.currentEvent = null;
+                updateEventDisplay();
+                updateUI();
+                saveGameState();
+            } catch (error) {
+                console.error("Ошибка при завершении события:", error);
+                // Принудительно сбрасываем состояние
+                gameState.currentEvent = null;
+                gameState.isEventEnding = false;
+                updateEventDisplay();
+            }
+    
+            gameState.isEventEnding = false;
+        }
+
+
+        
         function handlePressureChange() {
             // Ensure pressure is at least 5%
             // But don't allow changes if there's a temporary pressure event
@@ -1584,6 +1615,15 @@
             if (gameState.isPaused) return;
             
             const now = Date.now();
+            // check event ending every second
+            if (gameState.currentEvent && now - gameState.lastEventCheck >= 1000) {
+                const elapsed = now - gameState.currentEvent.startTime;
+                if (elapsed >= 60000) {
+                    safeEndCurrentEvent();
+                }
+            }
+
+            
             const timeDiff = now - gameState.lastTick;
             
             // Check for random events
