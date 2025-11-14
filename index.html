@@ -618,11 +618,92 @@
                 );
             }
         }
+
+
+        /* ... существующие стили ... */
+
+        /* Стили для панели достижений */
+        .achievement-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            height: 33.33vh;
+            background: rgba(0, 0, 0, 0.85);
+            border: 3px solid #fbbf24;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+            text-align: center;
+        }
+
+        .achievement-panel.active {
+            opacity: 1;
+        }
+
+        .achievement-icon {
+            font-size: min(10vw, 10vh, 60px);
+            margin-bottom: 15px;
+        }
+
+        .achievement-title {
+            font-size: calc(var(--font-size-base) * 1.4);
+            font-weight: bold;
+            color: #fbbf24;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .achievement-description {
+            font-size: calc(var(--font-size-base) * 1);
+            color: white;
+            line-height: 1.4;
+            max-width: 90%;
+        }
+
+        /* Адаптация для маленьких экранов */
+        @media (max-height: 600px) {
+            .achievement-panel {
+                height: 40vh;
+                padding: 15px;
+            }
+            
+            .achievement-icon {
+                font-size: min(8vw, 8vh, 45px);
+                margin-bottom: 10px;
+            }
+            
+            .achievement-title {
+                font-size: calc(var(--font-size-base) * 1.2);
+            }
+            
+            .achievement-description {
+                font-size: calc(var(--font-size-base) * 0.9);
+            }
+        }
+  
+    
     </style>
 </head>
 <body>
     <!-- Основной контейнер приложения -->
     <div class="app-container">
+
+        <!-- Панель достижений -->
+        <div class="achievement-panel" id="achievement-panel">
+            <div class="achievement-icon" id="achievement-icon">🏆</div>
+            <div class="achievement-title" id="achievement-title">Достижение!</div>
+            <div class="achievement-description" id="achievement-description"></div>
+        </div>
+        
         <div class="container">
             <div class="header">
                 <div class="top-info">
@@ -775,6 +856,13 @@
 
         // Game state
         let gameState = {
+            // Achievements system
+            achievements: {
+                firstThousand: false,
+                firstMillion: false,
+                firstYear: false,
+                // Добавьте сюда другие достижения по мере необходимости
+            },        
             money: 100, // Starting with 100 rubles
             power: 100, // kW
             crews: 10,
@@ -820,6 +908,7 @@
             button: null,
             alarm: null,
             event: null
+            powerup: null // Добавлен звук для достижений
         };
         let soundsEnabled = true;
 
@@ -978,25 +1067,34 @@
         function initSounds() {
             try {
                 // Initialize sound objects with proper preloading
+                sounds.powerup = new Audio();
                 sounds.button = new Audio();
                 sounds.alarm = new Audio();
                 sounds.event = new Audio();
                 
                 // Set to loop and preload
+                sounds.powerup.loop = false;
                 sounds.button.loop = false;
                 sounds.alarm.loop = false;
                 sounds.event.loop = false;
-                
+
+                sounds.powerup.preload = 'auto'; 
                 sounds.button.preload = 'auto';
                 sounds.alarm.preload = 'auto';
                 sounds.event.preload = 'auto';
                 
                 // Attempt to load actual sound files with error handling
+                sounds.powerup.src = 'sounds/powerup.mp3';
                 sounds.button.src = 'sounds/button.mp3';
                 sounds.alarm.src = 'sounds/alarm.mp3';
                 sounds.event.src = 'sounds/event.mp3';
                 
                 // Set up error handling for audio loading
+
+                sounds.powerup.onerror = function(e) { 
+                    console.log('Powerup sound not loaded, continuing without sound', e);
+                };
+            
                 sounds.button.onerror = function(e) { 
                     console.log('Button sound not loaded, continuing without sound', e);
                     soundsEnabled = false;
@@ -1011,6 +1109,7 @@
                 };
                 
                 // Try to load sounds
+                sounds.powerup.load();        
                 sounds.button.load();
                 sounds.alarm.load();
                 sounds.event.load();
