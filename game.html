@@ -1294,37 +1294,6 @@
                 document.body.removeEventListener('click', initAllSounds);
             }, { once: true });
 
-            // Инициализация звуков при первом взаимодействии (обязательно для iOS Safari)
-            const unlockAudio = () => {
-                Object.values(sounds).forEach(sound => {
-                    if (sound) {
-                        sound.src = ''; // Очищаем, если был мусор
-                    }
-                });
-
-                // Присваиваем источники ИГРАЕМ сразу в том же обработчике
-                sounds.button.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj2x4/LDciUFLI7a8s96KQ0zj9n1ynEiCDyT3faXaBwJM5Lc95VnGgY2ld73jmIWBDiT3viQZxgFPZbf+I9lFQQ8lN75jWMTBD6V3/qNYxIEQJbf+4xjEgRCl9/8imIQBEKX3/yJYg8EQ5jf/Yh...'; // ← ЗАГЛУШКА
-                sounds.button.load();
-                sounds.button.play().catch(() => {});
-
-                sounds.alarm.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj2x4/LDciUFLI7a8s96KQ0zj9n1ynEiCDyT3faXaBwJM5Lc95VnGgY2ld73jmIWBDiT3viQZxgFPZbf+I9lFQQ8lN75jWMTBD6V3/qNYxIEQJbf+4xjEgRCl9/8imIQBEKX3/yJYg8EQ5jf/Yh...';
-                sounds.alarm.load();
-                sounds.alarm.play().catch(() => {});
-
-                sounds.event.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj2x4/LDciUFLI7a8s96KQ0zj9n1ynEiCDyT3faXaBwJM5Lc95VnGgY2ld73jmIWBDiT3viQZxgFPZbf+I9lFQQ8lN75jWMTBD6V3/qNYxIEQJbf+4xjEgRCl9/8imIQBEKX3/yJYg8EQ5jf/Yh...';
-                sounds.event.load();
-                sounds.event.play().catch(() => {});
-
-                sounds.powerup.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj2x4/LDciUFLI7a8s96KQ0zj9n1ynEiCDyT3faXaBwJM5Lc95VnGgY2ld73jmIWBDiT3viQZxgFPZbf+I9lFQQ8lN75jWMTBD6V3/qNYxIEQJbf+4xjEgRCl9/8imIQBEKX3/yJYg8EQ5jf/Yh...';
-                sounds.powerup.load();
-                sounds.powerup.play().catch(() => {});
-
-                document.body.removeEventListener('touchstart', unlockAudio);
-                document.body.removeEventListener('mousedown', unlockAudio);
-            };
-
-            document.body.addEventListener('touchstart', unlockAudio, { once: true });
-            document.body.addEventListener('mousedown', unlockAudio, { once: true });
 
 
             
