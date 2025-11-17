@@ -762,7 +762,16 @@
                 firstThousand: false,
                 firstMillion: false,
                 firstYear: false,
-                trillionEarned: false // ← новое достижение
+                trillionEarned: false, // ← новое достижение
+                billionaire: false,
+                fiveYears: false,
+                masterOfRepairs: false,
+                powerMax: false,
+                eventSurvivor: false,
+                perfectDay: false,
+                steadyHand: false,
+                upgradeMaster: false
+                
             },
             // === ТЕСТИРОВАНИЕ: РАСКОММЕНТИРУЙТЕ ОДНУ СТРОКУ НИЖЕ ===
             // money: 999_000_000_000, // ← почти триллион
@@ -1051,6 +1060,7 @@
             }
         ];
 
+
         const achievements = [
             {
                 id: 'firstThousand',
@@ -1069,18 +1079,13 @@
                 onUnlock: (state) => { state.achievements.firstMillion = true; }
             },
             {
-                id: 'firstYear',
-                name: 'Первый Год!',
-                description: 'Доказали надежность теплоснабжения!',
-                icon: '📅',
-                condition: (state) => state.dayCounter >= 365 && !state.achievements.firstYear,
-                onUnlock: (state) => { state.achievements.firstYear = true; }
+                id: 'billionaire',
+                name: 'Миллиард!',
+                description: 'Ваша ТЭЦ генерирует миллиарды!',
+                icon: '🏦',
+                condition: (state) => state.money >= 1e9 && !state.achievements.billionaire,
+                onUnlock: (state) => { state.achievements.billionaire = true; }
             },
-
-
-
-
-            
             {
                 id: 'trillionEarned',
                 name: 'Триллион рублей!',
@@ -1088,8 +1093,81 @@
                 icon: '💎',
                 condition: (state) => state.money >= 1e12 && !state.achievements.trillionEarned,
                 onUnlock: (state) => { state.achievements.trillionEarned = true; }
+            },
+            {
+                id: 'firstYear',
+                name: 'Первый Год!',
+                description: 'Доказали надежность теплоснабжения!',
+                icon: '📅',
+                condition: (state) => state.dayCounter >= 365 && !state.achievements.firstYear,
+                onUnlock: (state) => { state.achievements.firstYear = true; }
+            },
+            {
+                id: 'fiveYears',
+                name: 'Орден Пятилетки!',
+                description: 'Пять лет без аварийного отключения!',
+                icon: '🎖️',
+                condition: (state) => state.dayCounter >= 1825 && !state.achievements.fiveYears,
+                onUnlock: (state) => { state.achievements.fiveYears = true; }
+            },
+            {
+                id: 'masterOfRepairs',
+                name: 'Повелитель ремонтов',
+                description: 'Провели 10 аварийных ремонтов!',
+                icon: '🔧',
+                condition: (state) => state.stats.repairsPerformed >= 10 && !state.achievements.masterOfRepairs,
+                onUnlock: (state) => { state.achievements.masterOfRepairs = true; }
+            },
+            {
+                id: 'powerMax',
+                name: 'Энергетический гигант',
+                description: 'Достигли мощности 10000 кВт!',
+                icon: '⚡',
+                condition: (state) => state.stats.maxPower >= 10000 && !state.achievements.powerMax,
+                onUnlock: (state) => { state.achievements.powerMax = true; }
+            },
+            {
+                id: 'eventSurvivor',
+                name: 'Выживший',
+                description: 'Пережили 20 случайных событий!',
+                icon: '🎲',
+                condition: (state) => state.stats.eventsOccurred >= 20 && !state.achievements.eventSurvivor,
+                onUnlock: (state) => { state.achievements.eventSurvivor = true; }
+            },
+            {
+                id: 'perfectDay',
+                name: 'Идеальный месяц',
+                description: 'Целый месяц без единой аварии!',
+                icon: '☀️',
+                condition: (state) => 
+                    state.dayCounter > 30 && 
+                    state.stats.repairsPerformed === 0 && 
+                    !state.achievements.perfectDay,
+                onUnlock: (state) => { state.achievements.perfectDay = true; }
+            },
+            {
+                id: 'steadyHand',
+                name: 'Твёрдая рука',
+                description: 'Никогда не опускали давление ниже 10%!',
+                icon: '🛡️',
+                condition: (state) => 
+                    state.pressure >= 10 && 
+                    state.stats.eventsOccurred > 5 && 
+                    !state.achievements.steadyHand,
+                onUnlock: (state) => { state.achievements.steadyHand = true; }
+            },
+            {
+                id: 'upgradeMaster',
+                name: 'Мастер модернизаций',
+                description: 'Установили 100 улучшений!',
+                icon: '🚀',
+                condition: (state) => state.stats.upgradesPerformed >= 100 && !state.achievements.upgradeMaster,
+                onUnlock: (state) => { state.achievements.upgradeMaster = true; }
             }
+            
         ];
+
+
 
         function initSounds() {
             try {
@@ -1242,8 +1320,16 @@
                     firstThousand: false,
                     firstMillion: false,
                     firstYear: false,
-                    trillionEarned: false
-                }
+                    trillionEarned: false,
+                    billionaire: false,
+                    fiveYears: false,
+                    masterOfRepairs: false,
+                    powerMax: false,
+                    eventSurvivor: false,
+                    perfectDay: false,
+                    steadyHand: false,
+                    upgradeMaster: false
+                    }
             };
             if (elements.pressureSlider && elements.pressureSlider.disabled) {
                 elements.pressureSlider.disabled = false;
