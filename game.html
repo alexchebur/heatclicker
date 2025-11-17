@@ -1171,30 +1171,28 @@
 
         function initSounds() {
             try {
-                sounds.powerup = new Audio();
-                sounds.button = new Audio();
-                sounds.alarm = new Audio();
-                sounds.event = new Audio();
-                sounds.powerup.loop = false;
-                sounds.button.loop = false;
-                sounds.alarm.loop = false;
-                sounds.event.loop = false;
-                sounds.powerup.preload = 'auto'; 
-                sounds.button.preload = 'auto';
-                sounds.alarm.preload = 'auto';
-                sounds.event.preload = 'auto';
-                sounds.powerup.src = 'sounds/powerup.mp3';
-                sounds.button.src = 'sounds/button.mp3';
-                sounds.alarm.src = 'sounds/alarm.mp3';
-                sounds.event.src = 'sounds/event.mp3';
-                sounds.powerup.onerror = function(e) { console.log('Powerup sound not loaded', e); };
-                sounds.button.onerror = function(e) { console.log('Button sound not loaded', e); soundsEnabled = false; };
-                sounds.alarm.onerror = function(e) { console.log('Alarm sound not loaded', e); soundsEnabled = false; };
-                sounds.event.onerror = function(e) { console.log('Event sound not loaded', e); soundsEnabled = false; };
-                sounds.powerup.load();        
-                sounds.button.load();
-                sounds.alarm.load();
-                sounds.event.load();
+                // Initialize sound objects
+                ['powerup', 'button', 'alarm', 'event'].forEach(name => {
+                    sounds[name] = new Audio();
+                    sounds[name].src = `sounds/${name}.mp3`;
+                    sounds[name].preload = 'auto';
+                    sounds[name].volume = 0.7;
+            
+                    // Попытка автоматической загрузки
+                    sounds[name].load();
+                });
+        
+                // Проверка загрузки звуков
+                setTimeout(() => {
+                    Object.entries(sounds).forEach(([name, sound]) => {
+                        if (sound.readyState < 2) { // HAVE_CURRENT_DATA
+                            console.warn(`Sound "${name}" failed to load properly. ReadyState: ${sound.readyState}`);
+                            // Попытка перезагрузки
+                            sound.load();
+                        }
+                    });
+                }, 1000);
+        
             } catch (e) {
                 console.warn('Audio initialization failed, sounds disabled:', e);
                 soundsEnabled = false;
@@ -1209,12 +1207,32 @@
             try {
                 const sound = sounds[soundName];
                 if (sound) {
-                    sound.pause(); // Останавливаем текущее воспроизведение
-                    sound.currentTime = 0; // Сбрасываем позицию
+                    // Проверяем, поддерживается ли звук
+                    if (typeof sound.play !== 'function') {
+                        return;
+                    }
+            
+                    // Останавливаем текущее воспроизведение
+                    sound.pause();
+                    // Сбрасываем позицию
+                    sound.currentTime = 0;
+                    // Устанавливаем громкость
                     sound.volume = 0.7;
+                    
+                    // Воспроизводим звук
                     sound.play().catch(e => {
                         if (e.name === 'NotAllowedError') {
                             console.log('Audio autoplay blocked by browser policy.');
+                            // Попытка инициализации звука через пользовательское взаимодействие
+                            document.body.addEventListener('click', function initAudio() {
+                                sound.play().catch(() => {});
+                                document.body.removeEventListener('click', initAudio);
+                            }, { once: true });
+                        } else if (e.name === 'AbortError') {
+                            console.log('Audio playback was aborted, trying again');
+                            setTimeout(() => {
+                                sound.play().catch(() => {});
+                            }, 100);
                         }
                     });
                 }
