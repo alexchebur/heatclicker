@@ -910,7 +910,7 @@
             },
             {
                 title: "В результате реализации крупного инвестпроекта возникла дополнительная прибыль",
-                effect: "выручка увеличилась на 150%",
+                effect: "выручка увеличилась на 50%",
                 type: "one-time",
                 apply: () => { gameState.money *= 1.5; }
             },
@@ -952,6 +952,97 @@
                 type: "one-time",
                 apply: () => { gameState.moneyPerTick *= 1.1; }
             },
+
+
+            {
+                title: "Дополнительные лимиты инвестиций на энергоэффективность",
+                effect: "+300 тыс. руб.",
+                type: "one-time",
+                apply: () => { gameState.money += 300000; }
+            },
+            {
+                title: "Успешно проведено мотивационное мероприятий для потребителей, платежи возросли",
+                effect: "выручка увеличена на 25% на 1 минуту",
+                type: "ongoing",
+                apply: () => {
+                    gameState.tempMoneyMultiplier = 1.25;
+                    updateUI();
+                },
+                revert: () => {
+                    gameState.tempMoneyMultiplier = 1;
+                    updateUI();
+                }
+            },
+            {
+                title: "Внедрен новый метод неразрушающего контроля, достигнута экономия",
+                effect: "+500 тыс. руб.",
+                type: "one-time",
+                apply: () => { gameState.money += 500000; }
+            },
+            {
+                title: "Запущен проект обследования сетей дроном с тепловизором, достигнута экономия",
+                effect: "+200 тыс. руб.",
+                type: "one-time",
+                apply: () => { gameState.money += 200000; }
+            },
+            {
+                title: "На объектах потребителей установлены дроссельные регуляторы",
+                effect: "выручка увеличена на 15% на 1 минуту",
+                type: "ongoing",
+                apply: () => {
+                    gameState.tempMoneyMultiplier = 1.15;
+                    updateUI();
+               },
+                revert: () => {
+                    gameState.tempMoneyMultiplier = 1;
+                    updateUI();
+                }
+            },
+            {
+                title: "Получен вычет по НДС",
+                effect: "+150 тыс. руб.",
+                type: "one-time",
+                apply: () => { gameState.money += 150000; }
+            },
+            {
+                title: "Оптимизирован температурный график",
+                effect: "выручка увеличена на 20% на 1 минуту",
+                type: "ongoing",
+                apply: () => {
+                    gameState.tempMoneyMultiplier = 1.2;
+                    updateUI();
+                },
+                revert: () => {
+                    gameState.tempMoneyMultiplier = 1;
+                    updateUI();
+                }
+            },
+            {
+                title: "После победы в конкурсе энергетиков к нам пришли работать выпускники",
+                effect: "+100 тыс. руб. и +2 бригады",
+                type: "one-time",
+                apply: () => {
+                    gameState.money += 100000;
+                    gameState.crews += 2;
+                }
+            },
+            {
+                title: "Энергоаудит выявил резервы экономии",
+                effect: "мощность увеличена на 10% на 1 минуту",
+                type: "ongoing",
+                apply: () => {
+                    const originalPower = gameState.power;
+                    gameState.power = Math.floor(originalPower * 1.1);
+                    updateUI();
+                },
+                revert: () => {
+                    // Восстанавливаем мощность по формуле: power / 1.1
+                    gameState.power = Math.floor(gameState.power / 1.1);
+                    updateUI();
+                }
+            },
+
+            
             {
                 title: "Получен целевой кредит на развитие инфраструктуры",
                 effect: "+500 тыс. руб.",
@@ -985,6 +1076,11 @@
                 condition: (state) => state.dayCounter >= 365 && !state.achievements.firstYear,
                 onUnlock: (state) => { state.achievements.firstYear = true; }
             },
+
+
+
+
+            
             {
                 id: 'trillionEarned',
                 name: 'Триллион рублей!',
