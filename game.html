@@ -1202,18 +1202,22 @@
         }
 
         function playSound(soundName) {
-            if (!soundsEnabled || (gameState.isPaused && soundName !== 'alarm')) return;
+            // Allow alarm sound to play even when game is paused
+            if (!soundsEnabled || (gameState.isPaused && soundName !== 'alarm')) {
+                return;
+            }
             try {
-                const originalSound = sounds[soundName];
-                if (!originalSound) return;
-                const sound = originalSound.cloneNode();
-                sound.volume = 0.7;
-                sound.play().catch(e => {
-                    if (e.name === 'NotAllowedError') {
-                        console.log('Audio autoplay blocked by browser policy.');
-                    }
-                });
-                sound.onended = function() { sound.remove(); };
+                const sound = sounds[soundName];
+                if (sound) {
+                    sound.pause(); // Останавливаем текущее воспроизведение
+                    sound.currentTime = 0; // Сбрасываем позицию
+                    sound.volume = 0.7;
+                    sound.play().catch(e => {
+                        if (e.name === 'NotAllowedError') {
+                            console.log('Audio autoplay blocked by browser policy.');
+                        }
+                    });
+                }
             } catch (e) {
                 console.log('Sound playback error:', e);
             }
