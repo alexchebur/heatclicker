@@ -1282,6 +1282,17 @@
             elements.statEvents = document.getElementById('stat-events');
 
             initSounds();
+            document.body.addEventListener('click', function initAllSounds() {
+                Object.values(sounds).forEach(sound => {
+                    if (sound) {
+                        sound.play().catch(() => {}).then(() => {
+                            sound.pause();
+                            sound.currentTime = 0;
+                        });
+                    }
+                });
+                document.body.removeEventListener('click', initAllSounds);
+            }, { once: true });
             loadGameState();
             updateUI();
             updateBuildingStates();
