@@ -1435,7 +1435,7 @@
             const now = Date.now();
             if (now - gameState.lastEventCheck >= 60000) {
                 gameState.lastEventCheck = now;
-                if (Math.random() < 0.3 && !gameState.currentEvent) {
+                if (Math.random() < 0.5 && !gameState.currentEvent) {
                     const randomEvent = events[Math.floor(Math.random() * events.length)];
                     startEvent(randomEvent);
                 }
