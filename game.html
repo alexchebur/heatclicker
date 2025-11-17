@@ -516,6 +516,7 @@
             margin-bottom: 25px;
             font-weight: bold;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            display: none;
         }
         @media (max-height: 600px) {
             .header, .controls {
@@ -695,7 +696,7 @@
                     <div class="game-over-message" id="game-over-message" style="display: none;">
                         💀 ВСЕ ОБЪЕКТЫ ЗАМОРОЖЕНЫ!
                     </div>
-                    <div class="win-message" id="win-message" style="display: none;">
+                    <div class="win-message" id="win-message">
                         🎉 ПОЗДРАВЛЯЕМ! Вы заработали ТРИЛЛИОН рублей!
                     </div>
                     <div class="stats-grid">
@@ -761,9 +762,12 @@
                 firstThousand: false,
                 firstMillion: false,
                 firstYear: false,
-                trillionEarned: false,
+                trillionEarned: false // ← новое достижение
             },
-            money: 100,
+            // === ТЕСТИРОВАНИЕ: РАСКОММЕНТИРУЙТЕ ОДНУ СТРОКУ НИЖЕ ===
+            // money: 999_000_000_000, // ← почти триллион
+            // money: 1_000_000_000_000, // ← ровно триллион
+            money: 1000000000000, // ← обычная стартовая сумма (оставьте для обычной игры)
             power: 100,
             crews: 10,
             pressure: 50,
@@ -797,7 +801,7 @@
                 maxPower: 100,
                 eventsOccurred: 0,
                 gameOver: false,
-                gameWon: false
+                gameWon: false // ← новое поле
             }
         };
 
@@ -840,7 +844,7 @@
             closeStatsBtn: null,
             restartGameBtn: null,
             gameOverMessage: null,
-            winMessage: null,
+            winMessage: null, // ← новое поле
             statsTitle: null,
             statDays: null,
             statMoney: null,
@@ -956,6 +960,41 @@
             }
         ];
 
+        const achievements = [
+            {
+                id: 'firstThousand',
+                name: 'Первая Тысяча!',
+                description: 'Начало большого пути!',
+                icon: '💰',
+                condition: (state) => state.money >= 1000 && !state.achievements.firstThousand,
+                onUnlock: (state) => { state.achievements.firstThousand = true; }
+            },
+            {
+                id: 'firstMillion',
+                name: 'Первый Миллион!',
+                description: 'Инвестируем в станцию с умом!',
+                icon: '💵',
+                condition: (state) => state.money >= 1000000 && !state.achievements.firstMillion,
+                onUnlock: (state) => { state.achievements.firstMillion = true; }
+            },
+            {
+                id: 'firstYear',
+                name: 'Первый Год!',
+                description: 'Доказали надежность теплоснабжения!',
+                icon: '📅',
+                condition: (state) => state.dayCounter >= 365 && !state.achievements.firstYear,
+                onUnlock: (state) => { state.achievements.firstYear = true; }
+            },
+            {
+                id: 'trillionEarned',
+                name: 'Триллион рублей!',
+                description: 'Вы достигли легендарного рубежа!',
+                icon: '💎',
+                condition: (state) => state.money >= 1e12 && !state.achievements.trillionEarned,
+                onUnlock: (state) => { state.achievements.trillionEarned = true; }
+            }
+        ];
+
         function initSounds() {
             try {
                 sounds.powerup = new Audio();
@@ -1037,7 +1076,7 @@
             elements.closeStatsBtn = document.getElementById('close-stats-btn');
             elements.restartGameBtn = document.getElementById('restart-game-btn');
             elements.gameOverMessage = document.getElementById('game-over-message');
-            elements.winMessage = document.getElementById('win-message');
+            elements.winMessage = document.getElementById('win-message'); // ← новое поле
             elements.statsTitle = document.getElementById('stats-title');
             elements.statDays = document.getElementById('stat-days');
             elements.statMoney = document.getElementById('stat-money');
@@ -1064,17 +1103,12 @@
             setInterval(gameLoop, 100);
         }
 
-        function loadGameState() {
-            // Removed localStorage during dev
-        }
-
-        function saveGameState() {
-            // Removed localStorage during dev
-        }
+        function loadGameState() {}
+        function saveGameState() {}
 
         function resetGameState() {
             gameState = {
-                money: 100000000000,
+                money: 100,
                 power: 100,
                 crews: 10,
                 pressure: 50,
@@ -1100,7 +1134,7 @@
                 tempMoneyTickInterval: 1000,
                 tempMoneyMultiplier: 1,
                 stats: {
-                    totalMoneyEarned: 100000000000,
+                    totalMoneyEarned: 0,
                     repairsPerformed: 0,
                     upgradesPerformed: 0,
                     maxPower: 100,
@@ -1417,9 +1451,8 @@
         }
 
         function checkGameWin() {
-            if (gameState.money >= 1e12 && !gameState.stats.gameWon && !gameState.achievements.trillionEarned) {
+            if (gameState.money >= 1e12 && !gameState.stats.gameWon) {
                 gameState.stats.gameWon = true;
-                gameState.achievements.trillionEarned = true;
                 gameState.isPaused = true;
                 addLogEntry('🎉 ПОЗДРАВЛЯЕМ! Вы заработали ТРИЛЛИОН рублей!');
                 playSound('powerup');
@@ -1449,41 +1482,6 @@
             const temperaturePercentage = gameState.temperature / 150;
             return 1 + temperaturePercentage;
         }
-
-        const achievements = [
-            {
-                id: 'firstThousand',
-                name: 'Первая Тысяча!',
-                description: 'Начало большого пути!',
-                icon: '💰',
-                condition: (state) => state.money >= 1000 && !state.achievements.firstThousand,
-                onUnlock: (state) => { state.achievements.firstThousand = true; }
-            },
-            {
-                id: 'firstMillion',
-                name: 'Первый Миллион!',
-                description: 'Инвестируем в станцию с умом!',
-                icon: '💵',
-                condition: (state) => state.money >= 1000000 && !state.achievements.firstMillion,
-                onUnlock: (state) => { state.achievements.firstMillion = true; }
-            },
-            {
-                id: 'firstYear',
-                name: 'Первый Год!',
-                description: 'Доказали надежность теплоснабжения!',
-                icon: '📅',
-                condition: (state) => state.dayCounter >= 365 && !state.achievements.firstYear,
-                onUnlock: (state) => { state.achievements.firstYear = true; }
-            },
-            {
-                id: 'trillionEarned',
-                name: 'Триллион рублей!',
-                description: 'Вы достигли легендарного рубежа!',
-                icon: '💎',
-                condition: (state) => state.money >= 1e12 && !state.achievements.trillionEarned,
-                onUnlock: (state) => { state.achievements.trillionEarned = true; }
-            }
-        ];
 
         function showAchievement(achievement) {
             const panel = document.getElementById('achievement-panel');
@@ -1515,7 +1513,7 @@
             const now = Date.now();
             checkForRandomEvent();
             checkAchievements();
-            checkGameWin();
+            checkGameWin(); // ← ВАЖНО: вызываем проверку победы
             updateWeatherAndDay();
             if (gameState.currentEvent && now - gameState.lastEventCheck >= 1000) {
                 const elapsed = now - gameState.currentEvent.startTime;
