@@ -1205,12 +1205,48 @@
 
         function unlockAllAudio() {
             if (!soundsEnabled) return;
-            // Просто проигрываем каждый звук один раз для разблокировки
-            Object.keys(sounds).forEach(name => {
-                playSound(name);
-            });
+
+            // Создаём короткий бесшумный звук через Web Audio API — этого достаточно для разблокировки
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    const ctx = new AudioContext();
+                    const oscillator = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    oscillator.connect(gain);
+                    gain.connect(ctx.destination);
+                    gain.gain.value = 0.001; // почти бесшумно
+                    oscillator.start();
+                    setTimeout(() => {
+                        oscillator.stop();
+                        ctx.close().catch(() => {});
+                    }, 20);
+                }
+            } catch (e) {
+                console.warn('Web Audio unlock failed, falling back to silent clone play');
+                // Резервный вариант: проигрываем клон с нулевой громкостью
+                Object.keys(sounds).forEach(name => {
+                    const original = sounds[name];
+                    if (original && typeof original.cloneNode === 'function') {
+                        const silentClone = original.cloneNode();
+                        silentClone.volume = 0;     // ← ключевое: нулевая громкость
+                        silentClone.currentTime = 0;
+                        silentClone.play().catch(() => {});
+                    }
+                });
+            }
+
+            // Убираем обработчики, чтобы не вызывать снова
+            document.body.removeEventListener('touchstart', unlockAllAudio);
+            document.body.removeEventListener('click', unlockAllAudio);
+            document.body.removeEventListener('mousedown', unlockAllAudio);
         }
 
+        
+
+
+
+        
         let upgradeFeedbackTimer = null;
         function init() {
             elements.money = document.getElementById('money');
