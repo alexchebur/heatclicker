@@ -756,6 +756,32 @@
                 }
             }
         });
+        document.addEventListener('DOMContentLoaded', function() {
+            const interactiveElements = [
+                document.getElementById('pause-btn'),
+                document.getElementById('upgrade-btn'),
+                document.getElementById('repair-btn'),
+                document.getElementById('small-upgrade-btn'),
+                document.getElementById('pressure-slider'),
+                document.getElementById('temp-slider')
+            ];
+    
+            interactiveElements.forEach(element => {
+                if (element) {
+                    element.addEventListener('click', unlockAudio);
+                    element.addEventListener('touchstart', unlockAudio);
+                }
+            });
+    
+            // Также активируем при касании игрового поля
+            const gameField = document.getElementById('game-field');
+            if (gameField) {
+                gameField.addEventListener('click', unlockAudio);
+                gameField.addEventListener('touchstart', unlockAudio);
+            }
+        });
+
+        
 
         let gameState = {
             achievements: {
