@@ -756,13 +756,12 @@
                 }
             }
         });
-
         let gameState = {
             achievements: {
                 firstThousand: false,
                 firstMillion: false,
                 firstYear: false,
-                trillionEarned: false, // ← новое достижение
+                trillionEarned: false,
                 billionaire: false,
                 fiveYears: false,
                 masterOfRepairs: false,
@@ -771,12 +770,8 @@
                 perfectDay: false,
                 steadyHand: false,
                 upgradeMaster: false
-                
             },
-            // === ТЕСТИРОВАНИЕ: РАСКОММЕНТИРУЙТЕ ОДНУ СТРОКУ НИЖЕ ===
-            // money: 999_000_000_000, // ← почти триллион
-            // money: 1_000_000_000_000, // ← ровно триллион
-            money: 100, // ← обычная стартовая сумма (оставьте для обычной игры)
+            money: 100,
             power: 100,
             crews: 10,
             pressure: 50,
@@ -810,10 +805,9 @@
                 maxPower: 100,
                 eventsOccurred: 0,
                 gameOver: false,
-                gameWon: false // ← новое поле
+                gameWon: false
             }
         };
-
         const sounds = {
             button: null,
             alarm: null,
@@ -821,7 +815,10 @@
             powerup: null
         };
         let soundsEnabled = true;
-
+        let isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        let audioContext = null;
+        let isAudioInitialized = false;
+        
         const elements = {
             money: null,
             power: null,
@@ -853,7 +850,7 @@
             closeStatsBtn: null,
             restartGameBtn: null,
             gameOverMessage: null,
-            winMessage: null, // ← новое поле
+            winMessage: null,
             statsTitle: null,
             statDays: null,
             statMoney: null,
@@ -862,7 +859,6 @@
             statPower: null,
             statEvents: null
         };
-
         const upgradeNames = [
             'Откалибрована газотурбинная установка',
             'Обновлена система розжига котлов',
@@ -875,7 +871,6 @@
             'Заменены регуляторы давления',
             'Установлены новые теплоизоляционные материалы'
         ];
-
         const events = [
             {
                 title: "В системе новый потребитель, крупный торговый центр",
@@ -961,8 +956,6 @@
                 type: "one-time",
                 apply: () => { gameState.moneyPerTick *= 1.1; }
             },
-
-
             {
                 title: "Дополнительные лимиты инвестиций на энергоэффективность",
                 effect: "+300 тыс. руб.",
@@ -1045,13 +1038,10 @@
                     updateUI();
                 },
                 revert: () => {
-                    // Восстанавливаем мощность по формуле: power / 1.1
                     gameState.power = Math.floor(gameState.power / 1.1);
                     updateUI();
                 }
             },
-
-            
             {
                 title: "Получен целевой кредит на развитие инфраструктуры",
                 effect: "+500 тыс. руб.",
@@ -1059,8 +1049,6 @@
                 apply: () => { gameState.money += 500000; }
             }
         ];
-
-
         const achievements = [
             {
                 id: 'firstThousand',
@@ -1164,85 +1152,119 @@
                 condition: (state) => state.stats.upgradesPerformed >= 100 && !state.achievements.upgradeMaster,
                 onUnlock: (state) => { state.achievements.upgradeMaster = true; }
             }
-            
         ];
-
-
-
+        
+        function initAudioContext() {
+            try {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (window.AudioContext && !audioContext) {
+                    audioContext = new AudioContext();
+                }
+            } catch (e) {
+                console.log('Web Audio API not supported', e);
+            }
+        }
+        
         function initSounds() {
             try {
-                // Initialize sound objects
-                ['powerup', 'button', 'alarm', 'event'].forEach(name => {
+                if (isIOSDevice) {
+                    initAudioContext();
+                }
+                
+                // Создаем звуковые объекты с использованием встроенных звуков
+                const audioFiles = {
+                    button: 'data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABKgD///////////////////////////////////////////8AAAA8TEFNRTMuMTEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV',
+                    alarm: 'data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABKgD///////////////////////////////////////////8AAAA8TEFNRTMuMTEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV',
+                    event: 'data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABKgD///////////////////////////////////////////8AAAA8TEFNRTMuMTEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV',
+                    powerup: 'data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABKgD///////////////////////////////////////////8AAAA8TEFNRTMuMTEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'
+                };
+                
+                Object.keys(sounds).forEach(name => {
                     sounds[name] = new Audio();
-                    sounds[name].src = `sounds/${name}.mp3`;
+                    sounds[name].src = audioFiles[name];
                     sounds[name].preload = 'auto';
                     sounds[name].volume = 0.7;
-            
-                    // Попытка автоматической загрузки
-                    sounds[name].load();
+                    
+                    // Для iOS инициализируем звук при первом взаимодействии
+                    if (isIOSDevice) {
+                        sounds[name].load();
+                    }
                 });
-        
-                // Проверка загрузки звуков
-                setTimeout(() => {
-                    Object.entries(sounds).forEach(([name, sound]) => {
-                        if (sound.readyState < 2) { // HAVE_CURRENT_DATA
-                            console.warn(`Sound "${name}" failed to load properly. ReadyState: ${sound.readyState}`);
-                            // Попытка перезагрузки
-                            sound.load();
-                        }
-                    });
-                }, 1000);
-        
+                
+                soundsEnabled = true;
+                console.log('Audio initialized successfully');
             } catch (e) {
                 console.warn('Audio initialization failed, sounds disabled:', e);
                 soundsEnabled = false;
             }
         }
-
+        
+        function unlockAudio() {
+            if (isAudioInitialized) return;
+            
+            try {
+                // Для iOS создаем и немедленно останавливаем звук для разблокировки аудио
+                if (isIOSDevice && audioContext) {
+                    const oscillator = audioContext.createOscillator();
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                    oscillator.connect(audioContext.destination);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                }
+                
+                // Инициализируем все звуки
+                Object.values(sounds).forEach(sound => {
+                    if (sound && sound.readyState === 0) {
+                        sound.load();
+                    }
+                });
+                
+                isAudioInitialized = true;
+                console.log('Audio unlocked successfully');
+            } catch (e) {
+                console.log('Error unlocking audio:', e);
+            }
+        }
+        
         function playSound(soundName) {
-            // Allow alarm sound to play even when game is paused
             if (!soundsEnabled || (gameState.isPaused && soundName !== 'alarm')) {
                 return;
             }
+            
+            // Гарантируем инициализацию аудио перед воспроизведением
+            unlockAudio();
+            
             try {
                 const sound = sounds[soundName];
-                if (sound) {
-                    // Проверяем, поддерживается ли звук
-                    if (typeof sound.play !== 'function') {
-                        return;
-                    }
-            
-                    // Останавливаем текущее воспроизведение
+                if (!sound) return;
+                
+                // Для iOS создаем клон звука для каждого воспроизведения
+                if (isIOSDevice && audioContext) {
+                    const clone = sound.cloneNode();
+                    clone.volume = 0.7;
+                    clone.play().catch(e => {
+                        console.log('Clone sound error:', e);
+                    });
+                    // Удаляем клон после завершения воспроизведения
+                    clone.onended = () => {
+                        clone.remove();
+                    };
+                } else {
+                    // Для обычных браузеров перезапускаем звук
                     sound.pause();
-                    // Сбрасываем позицию
                     sound.currentTime = 0;
-                    // Устанавливаем громкость
                     sound.volume = 0.7;
-                    
-                    // Воспроизводим звук
                     sound.play().catch(e => {
-                        if (e.name === 'NotAllowedError') {
-                            console.log('Audio autoplay blocked by browser policy.');
-                            // Попытка инициализации звука через пользовательское взаимодействие
-                            document.body.addEventListener('click', function initAudio() {
-                                sound.play().catch(() => {});
-                                document.body.removeEventListener('click', initAudio);
-                            }, { once: true });
-                        } else if (e.name === 'AbortError') {
-                            console.log('Audio playback was aborted, trying again');
-                            setTimeout(() => {
-                                sound.play().catch(() => {});
-                            }, 100);
-                        }
+                        console.log('Sound playback error:', e);
                     });
                 }
             } catch (e) {
                 console.log('Sound playback error:', e);
             }
         }
-
+        
         let upgradeFeedbackTimer = null;
-
         function init() {
             elements.money = document.getElementById('money');
             elements.power = document.getElementById('power');
@@ -1272,7 +1294,7 @@
             elements.closeStatsBtn = document.getElementById('close-stats-btn');
             elements.restartGameBtn = document.getElementById('restart-game-btn');
             elements.gameOverMessage = document.getElementById('game-over-message');
-            elements.winMessage = document.getElementById('win-message'); // ← новое поле
+            elements.winMessage = document.getElementById('win-message');
             elements.statsTitle = document.getElementById('stats-title');
             elements.statDays = document.getElementById('stat-days');
             elements.statMoney = document.getElementById('stat-money');
@@ -1280,59 +1302,20 @@
             elements.statUpgrades = document.getElementById('stat-upgrades');
             elements.statPower = document.getElementById('stat-power');
             elements.statEvents = document.getElementById('stat-events');
-
+            
             initSounds();
-            document.body.addEventListener('click', function initAllSounds() {
-                Object.values(sounds).forEach(sound => {
-                    if (sound) {
-                        sound.play().catch(() => {}).then(() => {
-                            sound.pause();
-                            sound.currentTime = 0;
-                        });
-                    }
-                });
-                document.body.removeEventListener('click', initAllSounds);
-            }, { once: true });
-
-            // Инициализация звуков при первом взаимодействии (обязательно для iOS Safari)
-            const unlockAudio = () => {
-                Object.values(sounds).forEach(sound => {
-                    if (sound) {
-                        sound.src = ''; // Очищаем, если был мусор
-                    }
-                });
-
-                // Присваиваем источники ИГРАЕМ сразу в том же обработчике
-                sounds.button.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj2x4/LDciUFLI7a8s96KQ0zj9n1ynEiCDyT3faXaBwJM5Lc95VnGgY2ld73jmIWBDiT3viQZxgFPZbf+I9lFQQ8lN75jWMTBD6V3/qNYxIEQJbf+4xjEgRCl9/8imIQBEKX3/yJYg8EQ5jf/Yh...'; // ← ЗАГЛУШКА
-                sounds.button.load();
-                sounds.button.play().catch(() => {});
-
-                sounds.alarm.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj2x4/LDciUFLI7a8s96KQ0zj9n1ynEiCDyT3faXaBwJM5Lc95VnGgY2ld73jmIWBDiT3viQZxgFPZbf+I9lFQQ8lN75jWMTBD6V3/qNYxIEQJbf+4xjEgRCl9/8imIQBEKX3/yJYg8EQ5jf/Yh...';
-                sounds.alarm.load();
-                sounds.alarm.play().catch(() => {});
-
-                sounds.event.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj2x4/LDciUFLI7a8s96KQ0zj9n1ynEiCDyT3faXaBwJM5Lc95VnGgY2ld73jmIWBDiT3viQZxgFPZbf+I9lFQQ8lN75jWMTBD6V3/qNYxIEQJbf+4xjEgRCl9/8imIQBEKX3/yJYg8EQ5jf/Yh...';
-                sounds.event.load();
-                sounds.event.play().catch(() => {});
-
-                sounds.powerup.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj2x4/LDciUFLI7a8s96KQ0zj9n1ynEiCDyT3faXaBwJM5Lc95VnGgY2ld73jmIWBDiT3viQZxgFPZbf+I9lFQQ8lN75jWMTBD6V3/qNYxIEQJbf+4xjEgRCl9/8imIQBEKX3/yJYg8EQ5jf/Yh...';
-                sounds.powerup.load();
-                sounds.powerup.play().catch(() => {});
-
-                document.body.removeEventListener('touchstart', unlockAudio);
-                document.body.removeEventListener('mousedown', unlockAudio);
-            };
-
-            document.body.addEventListener('touchstart', unlockAudio, { once: true });
-            document.body.addEventListener('mousedown', unlockAudio, { once: true });
-
-
+            
+            // Единый обработчик для разблокировки аудио на iOS
+            document.body.addEventListener('touchstart', unlockAudio, { passive: true });
+            document.body.addEventListener('mousedown', unlockAudio, { passive: true });
+            
+            // Инициализация звуков при первом клике
+            document.body.addEventListener('click', unlockAudio, { once: true });
             
             loadGameState();
             updateUI();
             updateBuildingStates();
             gameState.outdoorTemp = Math.floor(Math.random() * 36) - 30;
-
             if (elements.pressureSlider) elements.pressureSlider.addEventListener('input', handlePressureChange);
             if (elements.tempSlider) elements.tempSlider.addEventListener('input', handleTempChange);
             if (elements.upgradeBtn) elements.upgradeBtn.addEventListener('click', handleUpgrade);
@@ -1341,13 +1324,11 @@
             if (elements.pauseBtn) elements.pauseBtn.addEventListener('click', togglePause);
             if (elements.closeStatsBtn) elements.closeStatsBtn.addEventListener('click', closeStatsOverlay);
             if (elements.restartGameBtn) elements.restartGameBtn.addEventListener('click', restartGame);
-
             setInterval(gameLoop, 100);
         }
-
+        
         function loadGameState() {}
         function saveGameState() {}
-
         function resetGameState() {
             gameState = {
                 money: 100,
@@ -1397,7 +1378,7 @@
                     perfectDay: false,
                     steadyHand: false,
                     upgradeMaster: false
-                    }
+                }
             };
             if (elements.pressureSlider && elements.pressureSlider.disabled) {
                 elements.pressureSlider.disabled = false;
@@ -1406,7 +1387,7 @@
             updateBuildingStates();
             saveGameState();
         }
-
+        
         function updateUI() {
             if (elements.money) elements.money.textContent = Math.floor(gameState.money).toLocaleString('ru-RU');
             if (elements.power) {
@@ -1431,7 +1412,7 @@
             if (elements.upgradeCost) elements.upgradeCost.textContent = gameState.upgradeCost.toLocaleString('ru-RU');
             updateEventDisplay();
         }
-
+        
         function updateEventDisplay() {
             if (!elements.eventTitle || !elements.eventEffect || !elements.eventTimer) return;
             if (gameState.currentEvent) {
@@ -1455,7 +1436,7 @@
                 elements.eventTimer.textContent = "";
             }
         }
-
+        
         function showStatsOverlay(isGameOver = false, isGameWon = false) {
             if (!elements.statsOverlay) return;
             if (elements.statDays) elements.statDays.textContent = gameState.dayCounter - 1;
@@ -1464,7 +1445,6 @@
             if (elements.statUpgrades) elements.statUpgrades.textContent = gameState.stats.upgradesPerformed;
             if (elements.statPower) elements.statPower.textContent = gameState.stats.maxPower.toLocaleString('ru-RU');
             if (elements.statEvents) elements.statEvents.textContent = gameState.stats.eventsOccurred;
-
             if (isGameOver) {
                 if (elements.statsTitle) elements.statsTitle.textContent = "Игра окончена!";
                 if (elements.gameOverMessage) elements.gameOverMessage.style.display = 'block';
@@ -1483,7 +1463,7 @@
             }
             elements.statsOverlay.classList.add('active');
         }
-
+        
         function closeStatsOverlay() {
             if (!elements.statsOverlay) return;
             elements.statsOverlay.classList.remove('active');
@@ -1492,13 +1472,13 @@
                 if (elements.pauseBtn) elements.pauseBtn.textContent = '⏸️';
             }
         }
-
+        
         function restartGame() {
             resetGameState();
             closeStatsOverlay();
             addLogEntry('🔄 Игра начата заново');
         }
-
+        
         function checkForRandomEvent() {
             const now = Date.now();
             if (now - gameState.lastEventCheck >= 60000) {
@@ -1509,7 +1489,7 @@
                 }
             }
         }
-
+        
         function startEvent(eventData) {
             gameState.currentEvent = {
                 title: eventData.title,
@@ -1524,7 +1504,7 @@
             updateEventDisplay();
             saveGameState();
         }
-
+        
         function endCurrentEvent() {
             if (gameState.currentEvent) {
                 const event = events.find(e => e.title === gameState.currentEvent.title);
@@ -1537,7 +1517,7 @@
                 saveGameState();
             }
         }
-
+        
         function safeEndCurrentEvent() {
             if (gameState.isEventEnding || !gameState.currentEvent) return;
             gameState.isEventEnding = true;
@@ -1555,21 +1535,21 @@
             }
             gameState.isEventEnding = false;
         }
-
+        
         function handlePressureChange() {
             if (gameState.tempPressure === null && elements.pressureSlider) {
                 gameState.pressure = Math.max(5, parseInt(elements.pressureSlider.value));
                 updateUI();
             }
         }
-
+        
         function handleTempChange() {
             if (elements.tempSlider) {
                 gameState.temperature = parseInt(elements.tempSlider.value);
                 updateUI();
             }
         }
-
+        
         function handleUpgrade() {
             if (gameState.money >= gameState.upgradeCost && !gameState.isPaused) {
                 playSound('button');
@@ -1595,7 +1575,7 @@
                 saveGameState();
             }
         }
-
+        
         function handleSmallUpgrade() {
             if (!gameState.isPaused) {
                 playSound('button');
@@ -1610,7 +1590,7 @@
                 saveGameState();
             }
         }
-
+        
         function handleRepair() {
             if (gameState.crews > 0 && !gameState.isPaused) {
                 playSound('button');
@@ -1638,7 +1618,7 @@
                 }
             }
         }
-
+        
         function showUpgradeFeedback(moneyIncrease) {
             if (upgradeFeedbackTimer) clearTimeout(upgradeFeedbackTimer);
             if (elements.upgradeBtnText) elements.upgradeBtnText.textContent = `+${moneyIncrease} ₽/сек`;
@@ -1647,7 +1627,7 @@
                 upgradeFeedbackTimer = null;
             }, 1000);
         }
-
+        
         function togglePause() {
             gameState.isPaused = !gameState.isPaused;
             if (elements.pauseBtn) elements.pauseBtn.textContent = gameState.isPaused ? '▶️' : '⏸️';
@@ -1656,7 +1636,7 @@
             }
             playSound('button');
         }
-
+        
         function updateBuildingStates() {
             for (const [key, building] of Object.entries(gameState.buildings)) {
                 const element = elements.buildings[key];
@@ -1675,7 +1655,7 @@
                 }
             }
         }
-
+        
         function addLogEntry(message) {
             if (!elements.log) return;
             const entry = document.createElement('div');
@@ -1686,7 +1666,7 @@
                 elements.log.removeChild(elements.log.lastChild);
             }
         }
-
+        
         function checkGameOver() {
             const allFrozen = Object.values(gameState.buildings).every(b => b.failed && b.failureType === 'freeze');
             if (allFrozen && !gameState.stats.gameOver) {
@@ -1699,7 +1679,7 @@
                 showStatsOverlay(true, false);
             }
         }
-
+        
         function checkGameWin() {
             if (gameState.money >= 1e12 && !gameState.stats.gameWon) {
                 gameState.stats.gameWon = true;
@@ -1710,7 +1690,7 @@
                 showStatsOverlay(false, true);
             }
         }
-
+        
         function updateWeatherAndDay() {
             const now = Date.now();
             if (now - gameState.lastWeatherUpdate >= 10000) {
@@ -1723,16 +1703,16 @@
                 updateUI();
             }
         }
-
+        
         function areAllBuildingsFailed() {
             return Object.values(gameState.buildings).every(b => b.failed);
         }
-
+        
         function getTemperatureBonus() {
             const temperaturePercentage = gameState.temperature / 150;
             return 1 + temperaturePercentage;
         }
-
+        
         function showAchievement(achievement) {
             const panel = document.getElementById('achievement-panel');
             const icon = document.getElementById('achievement-icon');
@@ -1747,7 +1727,7 @@
             setTimeout(() => { panel.classList.remove('active'); }, 4000);
             addLogEntry(`🏆 Получено достижение: ${achievement.name} - ${achievement.description}`);
         }
-
+        
         function checkAchievements() {
             for (const achievement of achievements) {
                 if (achievement.condition(gameState)) {
@@ -1757,13 +1737,13 @@
                 }
             }
         }
-
+        
         function gameLoop() {
             if (gameState.isPaused) return;
             const now = Date.now();
             checkForRandomEvent();
             checkAchievements();
-            checkGameWin(); // ← ВАЖНО: вызываем проверку победы
+            checkGameWin();
             updateWeatherAndDay();
             if (gameState.currentEvent && now - gameState.lastEventCheck >= 1000) {
                 const elapsed = now - gameState.currentEvent.startTime;
@@ -1836,7 +1816,7 @@
                 checkGameOver();
             }
         }
-
+        
         function getBuildingName(building) {
             if (building === gameState.buildings.school) return 'школе';
             if (building === gameState.buildings.house) return 'жилом доме';
@@ -1844,7 +1824,7 @@
             if (building === gameState.buildings.institution) return 'учреждении';
             return 'объекте';
         }
-
+        
         document.addEventListener('DOMContentLoaded', init);
         window.addEventListener('beforeunload', saveGameState);
     </script>
