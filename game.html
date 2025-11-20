@@ -12,6 +12,7 @@
     <title>ТЭЦ на Триллион!</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* Все стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -733,6 +734,7 @@
         </div>
     </div>
     <script>
+        // Добавляем глобальный обработчик для предотвращения масштабирования при двойном касании
         document.documentElement.addEventListener('touchstart', function(event) {
             if (event.touches.length > 1) {
                 event.preventDefault();
@@ -746,6 +748,8 @@
             }
             lastTouchEnd = now;
         }, { passive: false });
+        
+        // Добавляем дополнительные сетки для игрового поля
         document.addEventListener('DOMContentLoaded', function() {
             const gameField = document.getElementById('game-field');
             if (gameField) {
@@ -756,6 +760,7 @@
                 }
             }
         });
+        
         let gameState = {
             achievements: {
                 firstThousand: false,
@@ -808,16 +813,20 @@
                 gameWon: false
             }
         };
+        
+        // Полностью переписываем систему аудио для iOS
         const sounds = {
             button: null,
             alarm: null,
             event: null,
             powerup: null
         };
+        
         let soundsEnabled = true;
         let isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         let audioContext = null;
-        let isAudioInitialized = false;
+        let isAudioContextInitialized = false;
+        let userInteracted = false;
         
         const elements = {
             money: null,
@@ -859,6 +868,7 @@
             statPower: null,
             statEvents: null
         };
+        
         const upgradeNames = [
             'Откалибрована газотурбинная установка',
             'Обновлена система розжига котлов',
@@ -871,6 +881,7 @@
             'Заменены регуляторы давления',
             'Установлены новые теплоизоляционные материалы'
         ];
+        
         const events = [
             {
                 title: "В системе новый потребитель, крупный торговый центр",
@@ -1049,6 +1060,7 @@
                 apply: () => { gameState.money += 500000; }
             }
         ];
+        
         const achievements = [
             {
                 id: 'firstThousand',
@@ -1154,44 +1166,75 @@
             }
         ];
         
-        function initAudioContext() {
+        // Новая система звуков для iOS
+        function createAudioContext() {
+            if (audioContext) return;
+            
             try {
                 window.AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (window.AudioContext && !audioContext) {
+                if (window.AudioContext) {
                     audioContext = new AudioContext();
+                    isAudioContextInitialized = true;
                 }
             } catch (e) {
-                console.log('Web Audio API not supported', e);
+                console.warn('Web Audio API not supported:', e);
+                isAudioContextInitialized = false;
             }
+        }
+        
+        // Генерация простого звукового буфера
+        function generateSoundBuffer(type, duration = 0.2, frequency = 440) {
+            if (!audioContext || !isAudioContextInitialized) return null;
+            
+            const sampleRate = audioContext.sampleRate;
+            const buffer = audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            for (let i = 0; i < buffer.length; i++) {
+                const time = i / sampleRate;
+                
+                if (type === 'button') {
+                    // Короткий клик
+                    data[i] = Math.sin(2 * Math.PI * 800 * time) * Math.exp(-5 * time);
+                } else if (type === 'alarm') {
+                    // Периодический звук тревоги
+                    data[i] = Math.sin(2 * Math.PI * 600 * time) * Math.sin(2 * Math.PI * 5 * time) * Math.exp(-0.5 * time);
+                } else if (type === 'event') {
+                    // Мелодичный звук события
+                    data[i] = Math.sin(2 * Math.PI * 400 * time) * Math.exp(-3 * time) + 
+                             Math.sin(2 * Math.PI * 600 * time) * Math.exp(-4 * time);
+                } else if (type === 'powerup') {
+                    // Восходящий звук для улучшений
+                    const freq = 500 + 1000 * (time / duration);
+                    data[i] = Math.sin(2 * Math.PI * freq * time) * Math.exp(-2 * time);
+                }
+            }
+            
+            return buffer;
         }
         
         function initSounds() {
             try {
+                soundsEnabled = true;
+                
+                // Создаем AudioContext для iOS
                 if (isIOSDevice) {
-                    initAudioContext();
+                    createAudioContext();
+                    
+                    // Генерируем звуковые буферы
+                    sounds.button = generateSoundBuffer('button');
+                    sounds.alarm = generateSoundBuffer('alarm');
+                    sounds.event = generateSoundBuffer('event');
+                    sounds.powerup = generateSoundBuffer('powerup');
+                } 
+                // Для не-iOS устройств используем стандартные аудио
+                else {
+                    ['button', 'alarm', 'event', 'powerup'].forEach(name => {
+                        sounds[name] = new Audio();
+                        sounds[name].volume = 0.7;
+                    });
                 }
                 
-                // Создаем звуковые объекты с использованием встроенных звуков
-                const audioFiles = {
-                    button: 'data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABKgD///////////////////////////////////////////8AAAA8TEFNRTMuMTEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV',
-                    alarm: 'data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABKgD///////////////////////////////////////////8AAAA8TEFNRTMuMTEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV',
-                    event: 'data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABKgD///////////////////////////////////////////8AAAA8TEFNRTMuMTEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV',
-                    powerup: 'data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABKgD///////////////////////////////////////////8AAAA8TEFNRTMuMTEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'
-                };
-                
-                Object.keys(sounds).forEach(name => {
-                    sounds[name] = new Audio();
-                    sounds[name].src = audioFiles[name];
-                    sounds[name].preload = 'auto';
-                    sounds[name].volume = 0.7;
-                    
-                    // Для iOS инициализируем звук при первом взаимодействии
-                    if (isIOSDevice) {
-                        sounds[name].load();
-                    }
-                });
-                
-                soundsEnabled = true;
                 console.log('Audio initialized successfully');
             } catch (e) {
                 console.warn('Audio initialization failed, sounds disabled:', e);
@@ -1199,68 +1242,73 @@
             }
         }
         
-        function unlockAudio() {
-            if (isAudioInitialized) return;
-            
-            try {
-                // Для iOS создаем и немедленно останавливаем звук для разблокировки аудио
-                if (isIOSDevice && audioContext) {
-                    const oscillator = audioContext.createOscillator();
-                    oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-                    oscillator.connect(audioContext.destination);
-                    oscillator.start();
-                    oscillator.stop(audioContext.currentTime + 0.1);
-                }
-                
-                // Инициализируем все звуки
-                Object.values(sounds).forEach(sound => {
-                    if (sound && sound.readyState === 0) {
-                        sound.load();
-                    }
-                });
-                
-                isAudioInitialized = true;
-                console.log('Audio unlocked successfully');
-            } catch (e) {
-                console.log('Error unlocking audio:', e);
-            }
-        }
-        
+        // Универсальная функция для воспроизведения звука
         function playSound(soundName) {
             if (!soundsEnabled || (gameState.isPaused && soundName !== 'alarm')) {
                 return;
             }
             
-            // Гарантируем инициализацию аудио перед воспроизведением
-            unlockAudio();
-            
             try {
-                const sound = sounds[soundName];
-                if (!sound) return;
-                
-                // Для iOS создаем клон звука для каждого воспроизведения
-                if (isIOSDevice && audioContext) {
-                    const clone = sound.cloneNode();
-                    clone.volume = 0.7;
-                    clone.play().catch(e => {
-                        console.log('Clone sound error:', e);
-                    });
-                    // Удаляем клон после завершения воспроизведения
-                    clone.onended = () => {
-                        clone.remove();
-                    };
-                } else {
-                    // Для обычных браузеров перезапускаем звук
+                // Для iOS используем Web Audio API
+                if (isIOSDevice && isAudioContextInitialized) {
+                    if (!userInteracted) return;
+                    
+                    const buffer = sounds[soundName];
+                    if (!buffer) return;
+                    
+                    const source = audioContext.createBufferSource();
+                    source.buffer = buffer;
+                    
+                    const gainNode = audioContext.createGain();
+                    gainNode.gain.value = 0.3; // Немного тише для iOS
+                    
+                    source.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    source.start(0);
+                } 
+                // Для других устройств используем стандартное воспроизведение
+                else if (!isIOSDevice) {
+                    const sound = sounds[soundName];
+                    if (!sound) return;
+                    
                     sound.pause();
                     sound.currentTime = 0;
-                    sound.volume = 0.7;
+                    
                     sound.play().catch(e => {
                         console.log('Sound playback error:', e);
                     });
                 }
             } catch (e) {
                 console.log('Sound playback error:', e);
+            }
+        }
+        
+        // Функция для разблокировки аудио после первого взаимодействия
+        function unlockAudio() {
+            if (userInteracted) return;
+            
+            userInteracted = true;
+            
+            // Для iOS: возобновляем или создаем AudioContext
+            if (isIOSDevice) {
+                createAudioContext();
+                
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume().catch(e => {
+                        console.log('Error resuming audio context:', e);
+                    });
+                }
+            }
+            
+            // Для не-iOS: предварительно загружаем звуковые файлы
+            if (!isIOSDevice) {
+                ['button', 'alarm', 'event', 'powerup'].forEach(name => {
+                    if (sounds[name]) {
+                        sounds[name].src = `data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj2x4/LDciUFLI7a8s96KQ0zj9n1ynEiCDyT3faXaBwJM5Lc95VnGgY2ld73jmIWBDiT3viQZxgFPZbf+I9lFQQ8lN75jWMTBD6V3/qNYxIEQJbf+4xjEgRCl9/8imIQBEKX3/yJYg8EQ5jf/YhiDwRDmN/9h2IOBEKY3/2GYQ0EQZfe/IVhCwRAld36gWALBD6S2/mAYAkEPJDZ+H9eBwQ7jNj3fVoFBDiK1vd8VwQENoXU9XpVBQQ1g9H0eVMCBDN+z/N4UAECMn3N83ZNAQIxeszxdUwAAi95yvF0SgACLnjI8HNIAQIseMnwc0cBAix5yfB0RwICLHjJ8HNHAQIrdcrwckgCAilzy/BxSgICInPL8HBPAAIfdMzwb1EAAh1xzPBtUgACGnLL8GxUAAIYc8vwa1QAAhZyzPBqVgACFXPL8GhYAAITdMzwaVsAAgx1zPBnXQACBnXN8GVfAQIDdczwaF8BAgJ1zfBmYQECGnbO8GNjAgIUds/wYGQDAhJ30PBeZQMCBXTP8FtnBAIAAAA=`;
+                        sounds[name].load();
+                    }
+                });
             }
         }
         
@@ -1303,19 +1351,29 @@
             elements.statPower = document.getElementById('stat-power');
             elements.statEvents = document.getElementById('stat-events');
             
+            // Инициализация аудио
             initSounds();
             
-            // Единый обработчик для разблокировки аудио на iOS
-            document.body.addEventListener('touchstart', unlockAudio, { passive: true });
-            document.body.addEventListener('mousedown', unlockAudio, { passive: true });
+            // Устанавливаем обработчики для разблокировки аудио на iOS
+            document.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+            document.addEventListener('mousedown', unlockAudio, { once: true, passive: true });
+            document.addEventListener('click', unlockAudio, { once: true, passive: true });
             
-            // Инициализация звуков при первом клике
-            document.body.addEventListener('click', unlockAudio, { once: true });
+            // Для iOS активно разблокируем аудио при любом первом взаимодействии
+            if (isIOSDevice) {
+                document.body.addEventListener('touchstart', function() {
+                    if (audioContext && audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                }, { passive: true });
+            }
             
             loadGameState();
             updateUI();
             updateBuildingStates();
             gameState.outdoorTemp = Math.floor(Math.random() * 36) - 30;
+            
+            // События управления
             if (elements.pressureSlider) elements.pressureSlider.addEventListener('input', handlePressureChange);
             if (elements.tempSlider) elements.tempSlider.addEventListener('input', handleTempChange);
             if (elements.upgradeBtn) elements.upgradeBtn.addEventListener('click', handleUpgrade);
@@ -1324,9 +1382,14 @@
             if (elements.pauseBtn) elements.pauseBtn.addEventListener('click', togglePause);
             if (elements.closeStatsBtn) elements.closeStatsBtn.addEventListener('click', closeStatsOverlay);
             if (elements.restartGameBtn) elements.restartGameBtn.addEventListener('click', restartGame);
+            
             setInterval(gameLoop, 100);
         }
         
+        // Инициализация при загрузке DOM
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Все остальные функции остаются без изменений (loadGameState, saveGameState, resetGameState, updateUI, updateEventDisplay, etc.)
         function loadGameState() {}
         function saveGameState() {}
         function resetGameState() {
@@ -1378,7 +1441,7 @@
                     perfectDay: false,
                     steadyHand: false,
                     upgradeMaster: false
-                }
+                    }
             };
             if (elements.pressureSlider && elements.pressureSlider.disabled) {
                 elements.pressureSlider.disabled = false;
@@ -1387,7 +1450,6 @@
             updateBuildingStates();
             saveGameState();
         }
-        
         function updateUI() {
             if (elements.money) elements.money.textContent = Math.floor(gameState.money).toLocaleString('ru-RU');
             if (elements.power) {
@@ -1412,7 +1474,6 @@
             if (elements.upgradeCost) elements.upgradeCost.textContent = gameState.upgradeCost.toLocaleString('ru-RU');
             updateEventDisplay();
         }
-        
         function updateEventDisplay() {
             if (!elements.eventTitle || !elements.eventEffect || !elements.eventTimer) return;
             if (gameState.currentEvent) {
@@ -1436,7 +1497,6 @@
                 elements.eventTimer.textContent = "";
             }
         }
-        
         function showStatsOverlay(isGameOver = false, isGameWon = false) {
             if (!elements.statsOverlay) return;
             if (elements.statDays) elements.statDays.textContent = gameState.dayCounter - 1;
@@ -1463,7 +1523,6 @@
             }
             elements.statsOverlay.classList.add('active');
         }
-        
         function closeStatsOverlay() {
             if (!elements.statsOverlay) return;
             elements.statsOverlay.classList.remove('active');
@@ -1472,13 +1531,11 @@
                 if (elements.pauseBtn) elements.pauseBtn.textContent = '⏸️';
             }
         }
-        
         function restartGame() {
             resetGameState();
             closeStatsOverlay();
             addLogEntry('🔄 Игра начата заново');
         }
-        
         function checkForRandomEvent() {
             const now = Date.now();
             if (now - gameState.lastEventCheck >= 60000) {
@@ -1489,7 +1546,6 @@
                 }
             }
         }
-        
         function startEvent(eventData) {
             gameState.currentEvent = {
                 title: eventData.title,
@@ -1504,7 +1560,6 @@
             updateEventDisplay();
             saveGameState();
         }
-        
         function endCurrentEvent() {
             if (gameState.currentEvent) {
                 const event = events.find(e => e.title === gameState.currentEvent.title);
@@ -1517,7 +1572,6 @@
                 saveGameState();
             }
         }
-        
         function safeEndCurrentEvent() {
             if (gameState.isEventEnding || !gameState.currentEvent) return;
             gameState.isEventEnding = true;
@@ -1535,21 +1589,18 @@
             }
             gameState.isEventEnding = false;
         }
-        
         function handlePressureChange() {
             if (gameState.tempPressure === null && elements.pressureSlider) {
                 gameState.pressure = Math.max(5, parseInt(elements.pressureSlider.value));
                 updateUI();
             }
         }
-        
         function handleTempChange() {
             if (elements.tempSlider) {
                 gameState.temperature = parseInt(elements.tempSlider.value);
                 updateUI();
             }
         }
-        
         function handleUpgrade() {
             if (gameState.money >= gameState.upgradeCost && !gameState.isPaused) {
                 playSound('button');
@@ -1575,7 +1626,6 @@
                 saveGameState();
             }
         }
-        
         function handleSmallUpgrade() {
             if (!gameState.isPaused) {
                 playSound('button');
@@ -1590,7 +1640,6 @@
                 saveGameState();
             }
         }
-        
         function handleRepair() {
             if (gameState.crews > 0 && !gameState.isPaused) {
                 playSound('button');
@@ -1618,7 +1667,6 @@
                 }
             }
         }
-        
         function showUpgradeFeedback(moneyIncrease) {
             if (upgradeFeedbackTimer) clearTimeout(upgradeFeedbackTimer);
             if (elements.upgradeBtnText) elements.upgradeBtnText.textContent = `+${moneyIncrease} ₽/сек`;
@@ -1627,7 +1675,6 @@
                 upgradeFeedbackTimer = null;
             }, 1000);
         }
-        
         function togglePause() {
             gameState.isPaused = !gameState.isPaused;
             if (elements.pauseBtn) elements.pauseBtn.textContent = gameState.isPaused ? '▶️' : '⏸️';
@@ -1636,7 +1683,6 @@
             }
             playSound('button');
         }
-        
         function updateBuildingStates() {
             for (const [key, building] of Object.entries(gameState.buildings)) {
                 const element = elements.buildings[key];
@@ -1655,7 +1701,6 @@
                 }
             }
         }
-        
         function addLogEntry(message) {
             if (!elements.log) return;
             const entry = document.createElement('div');
@@ -1666,7 +1711,6 @@
                 elements.log.removeChild(elements.log.lastChild);
             }
         }
-        
         function checkGameOver() {
             const allFrozen = Object.values(gameState.buildings).every(b => b.failed && b.failureType === 'freeze');
             if (allFrozen && !gameState.stats.gameOver) {
@@ -1679,7 +1723,6 @@
                 showStatsOverlay(true, false);
             }
         }
-        
         function checkGameWin() {
             if (gameState.money >= 1e12 && !gameState.stats.gameWon) {
                 gameState.stats.gameWon = true;
@@ -1690,7 +1733,6 @@
                 showStatsOverlay(false, true);
             }
         }
-        
         function updateWeatherAndDay() {
             const now = Date.now();
             if (now - gameState.lastWeatherUpdate >= 10000) {
@@ -1703,16 +1745,13 @@
                 updateUI();
             }
         }
-        
         function areAllBuildingsFailed() {
             return Object.values(gameState.buildings).every(b => b.failed);
         }
-        
         function getTemperatureBonus() {
             const temperaturePercentage = gameState.temperature / 150;
             return 1 + temperaturePercentage;
         }
-        
         function showAchievement(achievement) {
             const panel = document.getElementById('achievement-panel');
             const icon = document.getElementById('achievement-icon');
@@ -1727,7 +1766,6 @@
             setTimeout(() => { panel.classList.remove('active'); }, 4000);
             addLogEntry(`🏆 Получено достижение: ${achievement.name} - ${achievement.description}`);
         }
-        
         function checkAchievements() {
             for (const achievement of achievements) {
                 if (achievement.condition(gameState)) {
@@ -1737,7 +1775,6 @@
                 }
             }
         }
-        
         function gameLoop() {
             if (gameState.isPaused) return;
             const now = Date.now();
@@ -1816,7 +1853,6 @@
                 checkGameOver();
             }
         }
-        
         function getBuildingName(building) {
             if (building === gameState.buildings.school) return 'школе';
             if (building === gameState.buildings.house) return 'жилом доме';
@@ -1824,8 +1860,6 @@
             if (building === gameState.buildings.institution) return 'учреждении';
             return 'объекте';
         }
-        
-        document.addEventListener('DOMContentLoaded', init);
         window.addEventListener('beforeunload', saveGameState);
     </script>
     <script>
