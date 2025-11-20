@@ -1149,87 +1149,66 @@
                 onUnlock: (state) => { state.achievements.upgradeMaster = true; }
             }
         ];
+
+        // === ИСПРАВЛЕННАЯ СИСТЕМА ЗВУКА ===
         function initSounds() {
             try {
-                ['powerup', 'button', 'alarm', 'event'].forEach(name => {
-                    sounds[name] = new Audio();
-                    sounds[name].src = `sounds/${name}.mp3`;
-                    sounds[name].preload = 'auto';
-                    sounds[name].volume = 0.7;
-                    sounds[name].load();
+                const soundNames = ['button', 'alarm', 'event', 'powerup'];
+                soundNames.forEach(name => {
+                    const audio = new Audio();
+                    audio.preload = 'auto';
+                    audio.volume = 0.7;
+                    audio.src = `sounds/${name}.mp3`;
+                    // Загружаем звук
+                    audio.load();
+                    sounds[name] = audio;
                 });
+                // Проверка загрузки через 1 секунду
                 setTimeout(() => {
                     Object.entries(sounds).forEach(([name, sound]) => {
-                        if (sound.readyState < 2) {
-                            console.warn(`Sound "${name}" failed to load properly. ReadyState: ${sound.readyState}`);
-                            sound.load();
+                        if (sound && sound.readyState < 2) {
+                            console.warn(`Sound "${name}" may not have loaded. ReadyState: ${sound.readyState}`);
                         }
                     });
                 }, 1000);
             } catch (e) {
-                console.warn('Audio initialization failed, sounds disabled:', e);
+                console.warn('Audio init failed:', e);
                 soundsEnabled = false;
             }
         }
 
-        // === НОВАЯ УЛУЧШЕННАЯ СИСТЕМА РАЗБЛОКИРОВКИ ЗВУКА ===
-        function unlockAudioGlobally() {
-            // Убираем слушатели, чтобы не вызывать повторно лишний раз
-            document.removeEventListener('touchstart', unlockAudioGlobally);
-            document.removeEventListener('mousedown', unlockAudioGlobally);
-            document.removeEventListener('click', unlockAudioGlobally);
+        function playSound(soundName) {
+            if (!soundsEnabled || !sounds[soundName]) return;
+            if (gameState.isPaused && soundName !== 'alarm') return;
 
-            // Создаем базовую заглушку, если звук не проигрывается
-            const silentWav = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+            const original = sounds[soundName];
+            if (!original || typeof original.cloneNode !== 'function') return;
 
-            Object.values(sounds).forEach(sound => {
-                if (!sound || sound._unlocked) return;
+            // Создаём клон для надёжного воспроизведения
+            const clone = original.cloneNode();
+            clone.volume = 0.7;
+            clone.currentTime = 0;
 
-                // Устанавливаем заглушку, если нет источника
-                if (!sound.src || sound.src === window.location.href) {
-                    sound.src = silentWav;
+            clone.play().catch(error => {
+                if (error.name === 'NotAllowedError') {
+                    // Повторная попытка разблокировки при следующем клике
+                    const unlockHandler = () => {
+                        clone.play().catch(() => {});
+                        document.body.removeEventListener('click', unlockHandler);
+                        document.body.removeEventListener('touchstart', unlockHandler);
+                    };
+                    document.body.addEventListener('click', unlockHandler, { once: true });
+                    document.body.addEventListener('touchstart', unlockHandler, { once: true });
                 }
-
-                // Пробуем бесшумный плей в текущем обработчике
-                sound.volume = 0;
-                sound.currentTime = 0;
-                sound.play().then(() => {
-                    sound._unlocked = true;
-                    sound.volume = 0.7; // восстанавливаем громкость
-                }).catch(e => {
-                    console.log('Silent unlock failed:', e.name);
-                });
             });
         }
 
-        // Вешаем постоянные слушатели (не once!)
-        document.addEventListener('touchstart', unlockAudioGlobally, { passive: true });
-        document.addEventListener('mousedown', unlockAudioGlobally, { passive: true });
-        document.addEventListener('click', unlockAudioGlobally, { passive: true });
-
-        function playSound(soundName) {
-            if (!soundsEnabled || (gameState.isPaused && soundName !== 'alarm')) {
-                return;
-            }
-            try {
-                const sound = sounds[soundName];
-                if (!sound) return;
-                if (typeof sound.play !== 'function') return;
-
-                sound.pause();
-                sound.currentTime = 0;
-                sound.volume = 0.7;
-
-                sound.play().catch(e => {
-                    if (e.name === 'NotAllowedError') {
-                        console.log('Audio autoplay blocked, trying global unlock...');
-                        // Попытка принудительной разблокировки
-                        unlockAudioGlobally();
-                    }
-                });
-            } catch (e) {
-                console.log('Sound playback error:', e);
-            }
+        function unlockAllAudio() {
+            if (!soundsEnabled) return;
+            // Просто проигрываем каждый звук один раз для разблокировки
+            Object.keys(sounds).forEach(name => {
+                playSound(name);
+            });
         }
 
         let upgradeFeedbackTimer = null;
@@ -1272,6 +1251,11 @@
             elements.statEvents = document.getElementById('stat-events');
 
             initSounds();
+
+            // Разблокировка аудио при первом взаимодействии
+            document.body.addEventListener('touchstart', unlockAllAudio, { once: true });
+            document.body.addEventListener('click', unlockAllAudio, { once: true });
+            document.body.addEventListener('mousedown', unlockAllAudio, { once: true });
 
             loadGameState();
             updateUI();
